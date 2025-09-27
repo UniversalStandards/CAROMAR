@@ -1,4 +1,6 @@
 # CAROMAR
+CAROMAR stands for "Copy A Repository Or Merge All Repositories".
+
 **C**opy **A** **R**epository **O**r **M**erge **A**ll **R**epositories
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/YOUR-SITE-ID/deploy-status)](https://app.netlify.com/sites/YOUR-SITE-NAME/deploys)
@@ -54,7 +56,7 @@ Deploy CAROMAR to Netlify with one click:
 - Deterministic capability detection (API/frontend/testing/CI/infrastructure) and per-repository risk scoring in merge output; no model is claimed where none is used
 - Structured merge results include the published commit SHA, file/byte counts, target branch, and source-history limitation
 - Custom naming for the merged repository
-- Repository descriptor validation (name/full_name/clone_url) before merge repo creation
+- Repository descriptor validation (name/full_name, clone_url) before merge repo creation
 
 ### 📈 Repository Analytics & Comparison
 - Aggregate statistics across a selected repository set: total stars/forks/watchers/size, private/forked/archived counts
