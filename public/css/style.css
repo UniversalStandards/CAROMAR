@@ -528,7 +528,7 @@ footer {
     font-weight: 500;
 }
 
-.checkbox-group input[type="checkbox"] {
+.checkbox-group input[type='checkbox'] {
     width: 16px;
     height: 16px;
 }
@@ -1359,7 +1359,7 @@ footer {
 }
 
 .tips-list li::before {
-    content: "💡 ";
+    content: '💡 ';
     margin-right: 0.5rem;
 }
 
@@ -1385,16 +1385,154 @@ footer {
     display: none !important;
 }
 
-.text-center {
-    text-align: center;
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 }
 
-.text-muted {
+.filter-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #24292f;
+}
+
+.filter-group select {
+    padding: 8px;
+    border: 1px solid #d1d9e0;
+    border-radius: 4px;
+    font-size: 14px;
+    background: white;
+}
+
+.search-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    background: #ddf4ff;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #0969da;
+}
+
+/* Merge Configuration */
+.merge-config {
+    background: #f6f8fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.merge-config textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #d1d9e0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 60px;
+}
+
+.checkbox-group {
+    margin: 1rem 0;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+}
+
+.merge-preview {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: white;
+    border: 1px solid #d1d9e0;
+    border-radius: 4px;
+}
+
+.merge-preview h4 {
+    color: #24292f;
+    margin-bottom: 0.5rem;
+}
+
+/* Repository Actions */
+.repo-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.bulk-actions, .filter-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.filter-actions input {
+    padding: 8px 12px;
+    border: 1px solid #d1d9e0;
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 200px;
+}
+
+/* Enhanced Repository Cards */
+.repo-item {
+    position: relative;
+    border: 2px solid #d1d9e0;
+    border-radius: 8px;
+    padding: 1rem;
+    background: white;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.repo-item:hover {
+    border-color: #0969da;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.repo-item.selected {
+    border-color: #0969da;
+    background: #ddf4ff;
+}
+
+.repo-item.archived {
+    opacity: 0.6;
+    background: #f6f8fa;
+}
+
+.repo-item.private {
+    border-left: 4px solid #d73a49;
+}
+
+.repo-stats {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    font-size: 12px;
     color: #656d76;
 }
 
-.mb-0 {
-    margin-bottom: 0;
+.repo-stats span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
 .mt-2 {

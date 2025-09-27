@@ -9,6 +9,8 @@ const axios = require('axios');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
+const fs = require('fs').promises;
+const { execSync } = require('child_process');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
@@ -105,6 +107,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Limit request body size
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static('public'));
+app.use('/api/', apiLimiter);
 
 // Request logging and performance tracking middleware
 app.use((req, res, next) => {
@@ -198,6 +201,7 @@ app.get('/api/search-repos', async (req, res) => {
         if (!username || !isValidGitHubUsername(username)) {
             logger.warn('Invalid username provided', { username });
             return res.status(400).json({ error: 'Valid username is required' });
+        }
         }
 
         // Validate token format if provided
@@ -545,7 +549,7 @@ app.get('/api/repo-content', async (req, res) => {
         // Validate inputs
         owner = sanitizeString(owner);
         repo = sanitizeString(repo);
-        path = sanitizeString(path); // Note: Path is validated by GitHub API as well
+        path = sanitizeString(path);
 
         if (!owner || !isValidGitHubUsername(owner)) {
             return res.status(400).json({ error: 'Valid owner is required' });
@@ -651,12 +655,66 @@ app.get('/api/validate-token', async (req, res) => {
             'User-Agent': 'CAROMAR-App'
         };
 
+        const userResponse = await axios.get('https://api.github.com/user', { headers });
+
+        // Extract scopes from headers for permission diagnostics
+        const scopes = userResponse.headers['x-oauth-scopes']?.split(', ') || [];
+
+        // Get rate limit info
+        const rateLimitResponse = await axios.get('https://api.github.com/rate_limit', { headers });
+
+        res.json({
+            username: userResponse.data.login,
+            name: userResponse.data.name,
+            email: userResponse.data.email,
+            avatar_url: userResponse.data.avatar_url,
+            bio: userResponse.data.bio,
+            company: userResponse.data.company,
+            location: userResponse.data.location,
+            public_repos: userResponse.data.public_repos,
+            public_gists: userResponse.data.public_gists,
+            followers: userResponse.data.followers,
+            following: userResponse.data.following,
+            created_at: userResponse.data.created_at,
+            type: userResponse.data.type,
+            plan: userResponse.data.plan,
+            scopes,
+            rate_limit: rateLimitResponse.data.rate
+        });
+    } catch (error) {
+        logger.error('Error fetching user info', error);
+        
+        if (error.response?.status === 401) {
+            res.status(401).json({ error: 'Invalid or expired token' });
+        } else if (error.response?.status === 403) {
+            res.status(403).json({ error: 'Token lacks required permissions' });
+        } else {
+            res.status(500).json({ error: 'Failed to fetch user information' });
+        }
+    }
+});
+
+// API endpoint to validate token permissions
+app.get('/api/validate-token', async (req, res) => {
+    try {
+        const token = getBearerToken(req);
+        
+        if (!token) {
+            return res.status(400).json({ error: 'Token is required' });
+        }
+
+        const headers = {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'User-Agent': 'CAROMAR-App'
+        };
+
         // Check token validity and permissions
         const response = await axios.get('https://api.github.com/user', { headers });
-
+        
         // Extract scopes from headers
         const scopes = response.headers['x-oauth-scopes']?.split(', ') || [];
-
+        
         res.json({
             valid: true,
             scopes,

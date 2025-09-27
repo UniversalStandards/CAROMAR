@@ -162,13 +162,13 @@ class EnhancedCaromarApp {
         const openModal = () => {
             helpModal.style.display = 'flex';
             helpModal.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            document.body.style.overflow = 'hidden';
         };
 
         const closeModal = () => {
             helpModal.style.display = 'none';
             helpModal.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = ''; // Restore scrolling
+            document.body.style.overflow = '';
         };
 
         helpButton.addEventListener('click', openModal);
@@ -994,16 +994,16 @@ class EnhancedCaromarApp {
                 <div class="summary-card">
                     <h3>✅ Repository Created Successfully</h3>
                     <p><strong>Name:</strong> ${escapeHtml(result.repository?.name)}</p>
-                    <p><strong>URL:</strong> <a href="${escapeHtml(result.repository?.html_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(result.repository?.html_url)}</a></p>
+                    <p><strong>URL:</strong> <a href='${escapeHtml(result.repository?.html_url)}' target='_blank' rel='noopener noreferrer'>${escapeHtml(result.repository?.html_url)}</a></p>
                     <p><strong>Publication:</strong> Atomic single-commit merge on <code>${escapeHtml(merge.targetBranch || 'main')}</code></p>
                     <p><strong>Commit:</strong> <code>${escapeHtml(merge.commitSha || 'unavailable')}</code></p>
                     <p><strong>Files:</strong> ${escapeHtml(merge.mergedFiles ?? 0)} &middot; <strong>Bytes:</strong> ${escapeHtml(formatBytes(merge.mergedBytes || 0))}</p>
                 </div>
 
-                <div class="merge-repos">
+                <div class='merge-repos'>
                     <h4>📦 Merged Repositories</h4>
                     ${repositoryResults.map(repository => `
-                        <div class="repo-merge-item">
+                        <div class='repo-merge-item'>
                             <strong>${escapeHtml(repository.folder || repository.full_name)}</strong>
                             <p>${escapeHtml(repository.full_name)} &middot; ${escapeHtml(repository.mergedFiles || 0)} files &middot; ${escapeHtml(formatBytes(repository.mergedBytes || 0))}</p>
                             <p>Capabilities: ${escapeHtml((repository.capabilities || []).join(', ') || 'none detected')} &middot; deterministic analysis</p>
@@ -1011,7 +1011,7 @@ class EnhancedCaromarApp {
                     `).join('')}
                 </div>
 
-                <div class="merge-analysis">
+                <div class='merge-analysis'>
                     <h4>🔎 Deterministic Merge Analysis</h4>
                     ${insights.map(insight => `
                         <p><strong>${escapeHtml(insight.repository)}</strong>: ${escapeHtml(insight.recommendation)}</p>
@@ -1230,72 +1230,72 @@ class EnhancedCaromarApp {
         const content = document.getElementById('analytics-content');
         
         content.innerHTML = `
-            <div class="analytics-grid">
-                <div class="analytics-card">
+            <div class='analytics-grid'>
+                <div class='analytics-card'>
                     <h3>Overview</h3>
-                    <div class="stat-grid">
-                        <div class="stat-item">
-                            <div class="stat-value">${analysis.overview.totalRepos}</div>
-                            <div class="stat-label">Total Repositories</div>
+                    <div class='stat-grid'>
+                        <div class='stat-item'>
+                            <div class='stat-value'>${analysis.overview.totalRepos}</div>
+                            <div class='stat-label'>Total Repositories</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-value">${analysis.overview.totalStars.toLocaleString()}</div>
-                            <div class="stat-label">Total Stars</div>
+                        <div class='stat-item'>
+                            <div class='stat-value'>${analysis.overview.totalStars.toLocaleString()}</div>
+                            <div class='stat-label'>Total Stars</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-value">${analysis.overview.totalForks.toLocaleString()}</div>
-                            <div class="stat-label">Total Forks</div>
+                        <div class='stat-item'>
+                            <div class='stat-value'>${analysis.overview.totalForks.toLocaleString()}</div>
+                            <div class='stat-label'>Total Forks</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-value">${(analysis.overview.totalSize / 1024).toFixed(2)} MB</div>
-                            <div class="stat-label">Total Size</div>
+                        <div class='stat-item'>
+                            <div class='stat-value'>${(analysis.overview.totalSize / 1024).toFixed(2)} MB</div>
+                            <div class='stat-label'>Total Size</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="analytics-card">
+                <div class='analytics-card'>
                     <h3>Repository Types</h3>
-                    <div class="stat-grid">
-                        <div class="stat-item">
-                            <div class="stat-value">${analysis.overview.privateRepos}</div>
-                            <div class="stat-label">Private</div>
+                    <div class='stat-grid'>
+                        <div class='stat-item'>
+                            <div class='stat-value'>${analysis.overview.privateRepos}</div>
+                            <div class='stat-label'>Private</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-value">${analysis.overview.forkedRepos}</div>
-                            <div class="stat-label">Forked</div>
+                        <div class='stat-item'>
+                            <div class='stat-value'>${analysis.overview.forkedRepos}</div>
+                            <div class='stat-label'>Forked</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-value">${analysis.overview.archivedRepos}</div>
-                            <div class="stat-label">Archived</div>
+                        <div class='stat-item'>
+                            <div class='stat-value'>${analysis.overview.archivedRepos}</div>
+                            <div class='stat-label'>Archived</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-value">${analysis.active}</div>
-                            <div class="stat-label">Active (7 days)</div>
+                        <div class='stat-item'>
+                            <div class='stat-value'>${analysis.active}</div>
+                            <div class='stat-label'>Active (7 days)</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="analytics-card">
+                <div class='analytics-card'>
                     <h3>Language Distribution</h3>
-                    <div class="language-list">
+                    <div class='language-list'>
                         ${Object.entries(analysis.languages).slice(0, 10).map(([lang, count]) => `
-                            <div class="language-item">
-                                <span class="language-name">${lang}</span>
-                                <span class="language-count">${count} repos</span>
+                            <div class='language-item'>
+                                <span class='language-name'>${lang}</span>
+                                <span class='language-count'>${count} repos</span>
                             </div>
                         `).join('')}
                     </div>
                 </div>
 
-                <div class="analytics-card">
+                <div class='analytics-card'>
                     <h3>Top Repositories</h3>
-                    <div class="top-repos-list">
+                    <div class='top-repos-list'>
                         ${analysis.topRepositories.map((repo, index) => `
-                            <div class="top-repo-item">
-                                <span class="repo-rank">#${index + 1}</span>
-                                <div class="repo-info">
-                                    <div class="repo-name-top">${repo.name}</div>
-                                    <div class="repo-stats-top">
+                            <div class='top-repo-item'>
+                                <span class='repo-rank'>#${index + 1}</span>
+                                <div class='repo-info'>
+                                    <div class='repo-name-top'>${repo.name}</div>
+                                    <div class='repo-stats-top'>
                                         ⭐ ${repo.stargazers_count} • 🔀 ${repo.forks_count}
                                     </div>
                                 </div>
@@ -1305,24 +1305,24 @@ class EnhancedCaromarApp {
                 </div>
 
                 ${analysis.averages ? `
-                <div class="analytics-card">
+                <div class='analytics-card'>
                     <h3>Average Metrics</h3>
-                    <div class="stat-grid">
-                        <div class="stat-item">
-                            <div class="stat-value">${analysis.averages.avgStars}</div>
-                            <div class="stat-label">Avg Stars</div>
+                    <div class='stat-grid'>
+                        <div class='stat-item'>
+                            <div class='stat-value'>${analysis.averages.avgStars}</div>
+                            <div class='stat-label'>Avg Stars</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-value">${analysis.averages.avgForks}</div>
-                            <div class="stat-label">Avg Forks</div>
+                        <div class='stat-item'>
+                            <div class='stat-value'>${analysis.averages.avgForks}</div>
+                            <div class='stat-label'>Avg Forks</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-value">${analysis.averages.avgWatchers}</div>
-                            <div class="stat-label">Avg Watchers</div>
+                        <div class='stat-item'>
+                            <div class='stat-value'>${analysis.averages.avgWatchers}</div>
+                            <div class='stat-label'>Avg Watchers</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-value">${(analysis.averages.avgSize / 1024).toFixed(2)} MB</div>
-                            <div class="stat-label">Avg Size</div>
+                        <div class='stat-item'>
+                            <div class='stat-value'>${(analysis.averages.avgSize / 1024).toFixed(2)} MB</div>
+                            <div class='stat-label'>Avg Size</div>
                         </div>
                     </div>
                 </div>
@@ -1412,19 +1412,19 @@ class EnhancedCaromarApp {
 
     renderTwoWayComparison(comparison) {
         return `
-            <div class="comparison-two">
+            <div class='comparison-two'>
                 <h3>Comparing: ${comparison.names.repo1} vs ${comparison.names.repo2}</h3>
                 
-                <div class="comparison-metrics">
+                <div class='comparison-metrics'>
                     <h4>Metrics Comparison</h4>
                     ${Object.entries(comparison.metrics).map(([metric, data]) => `
-                        <div class="metric-row">
-                            <div class="metric-name">${metric.charAt(0).toUpperCase() + metric.slice(1)}</div>
-                            <div class="metric-values">
-                                <div class="metric-value ${data.winner === comparison.names.repo1 ? 'winner' : ''}">
+                        <div class='metric-row'>
+                            <div class='metric-name'>${metric.charAt(0).toUpperCase() + metric.slice(1)}</div>
+                            <div class='metric-values'>
+                                <div class='metric-value ${data.winner === comparison.names.repo1 ? 'winner' : ''}'>
                                     ${comparison.names.repo1}: ${data.repo1.toLocaleString()}
                                 </div>
-                                <div class="metric-value ${data.winner === comparison.names.repo2 ? 'winner' : ''}">
+                                <div class='metric-value ${data.winner === comparison.names.repo2 ? 'winner' : ''}'>
                                     ${comparison.names.repo2}: ${data.repo2.toLocaleString()}
                                 </div>
                             </div>
@@ -1432,9 +1432,9 @@ class EnhancedCaromarApp {
                     `).join('')}
                 </div>
 
-                <div class="comparison-attributes">
+                <div class='comparison-attributes'>
                     <h4>Attributes</h4>
-                    <table class="comparison-table">
+                    <table class='comparison-table'>
                         <tr>
                             <th>Attribute</th>
                             <th>${comparison.names.repo1}</th>
@@ -1450,11 +1450,11 @@ class EnhancedCaromarApp {
                     </table>
                 </div>
 
-                <div class="similarity-score">
+                <div class='similarity-score'>
                     <h4>Similarity Score</h4>
-                    <div class="score-bar">
-                        <div class="score-fill" style="width: ${comparison.similarity}%"></div>
-                        <div class="score-text">${comparison.similarity}%</div>
+                    <div class='score-bar'>
+                        <div class='score-fill' style='width: ${comparison.similarity}%'></div>
+                        <div class='score-text'>${comparison.similarity}%</div>
                     </div>
                 </div>
             </div>
@@ -1463,22 +1463,22 @@ class EnhancedCaromarApp {
 
     renderBestComparison(comparison) {
         return `
-            <div class="comparison-best">
+            <div class='comparison-best'>
                 <h3>Best Repository by ${comparison.criteria}</h3>
                 
-                <div class="best-repo-card">
+                <div class='best-repo-card'>
                     <h4>🏆 Winner: ${comparison.best.name}</h4>
                     <p>${comparison.best.description || 'No description'}</p>
-                    <div class="repo-stats">
+                    <div class='repo-stats'>
                         ⭐ ${comparison.best.stargazers_count} stars • 
                         🔀 ${comparison.best.forks_count} forks • 
                         👁 ${comparison.best.watchers_count} watchers
                     </div>
                 </div>
 
-                <div class="rankings">
+                <div class='rankings'>
                     <h4>Complete Rankings</h4>
-                    <table class="ranking-table">
+                    <table class='ranking-table'>
                         <tr>
                             <th>Rank</th>
                             <th>Repository</th>
@@ -1499,13 +1499,13 @@ class EnhancedCaromarApp {
 
     renderMultipleComparison(comparison) {
         return `
-            <div class="comparison-multiple">
+            <div class='comparison-multiple'>
                 <h3>Multiple Repository Comparison</h3>
                 
                 ${Object.entries(comparison).map(([metric, repos]) => `
-                    <div class="metric-comparison">
+                    <div class='metric-comparison'>
                         <h4>${metric.replace('_', ' ').toUpperCase()}</h4>
-                        <table class="comparison-table">
+                        <table class='comparison-table'>
                             <tr>
                                 <th>Rank</th>
                                 <th>Repository</th>
