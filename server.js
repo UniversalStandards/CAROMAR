@@ -641,7 +641,6 @@ app.get('/api/validate-token', async (req, res) => {
         // Extract token from Authorization header
         const authHeader = req.headers.authorization;
         const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
-
         if (!token) {
             return res.status(400).json({ error: 'Token is required' });
         }
