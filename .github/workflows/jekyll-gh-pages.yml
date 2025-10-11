@@ -23,6 +23,8 @@ permissions:
   statuses: write
   discussions: write
   attestations: write
+  models: write
+
   security-events: write 
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
@@ -59,3 +61,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
