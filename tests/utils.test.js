@@ -6,9 +6,12 @@ const {
     isValidGitHubToken,
     sanitizeString,
     validatePagination,
+    isValidGitHubToken,
+    sanitizeString,
+    validatePagination,
     validateSort,
     isValidGitHubCloneUrl,
-    validateMergeRepositoryDescriptors 
+    validateMergeRepositoryDescriptors
 } = require('../utils/validation');
 
 describe('Validation Utilities', () => {
@@ -80,7 +83,6 @@ describe('Validation Utilities', () => {
             expect(result.perPage).toBe(100); // max perPage
         });
     });
-
 
     describe('isValidGitHubCloneUrl', () => {
         it('should validate GitHub clone URLs', () => {
@@ -160,7 +162,6 @@ describe('Validation Utilities', () => {
             expect(result.isValid).toBe(false);
         });
     });
-
     describe('validateSort', () => {
         it('should return valid sort parameter', () => {
             const allowed = ['updated', 'created', 'name'];

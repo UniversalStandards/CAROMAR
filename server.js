@@ -792,13 +792,11 @@ app.post('/api/analyze-repos', async (req, res) => {
 app.post('/api/compare-repos', async (req, res) => {
     try {
         const { repositories, mode = 'two' } = req.body;
-
         if (!repositories || !Array.isArray(repositories)) {
             return res.status(400).json({ error: 'Valid repositories array is required' });
         }
 
         let comparison;
-
         if (mode === 'two' && repositories.length === 2) {
             comparison = RepositoryComparison.compareTwo(repositories[0], repositories[1]);
         } else if (mode === 'multiple') {
@@ -811,10 +809,11 @@ app.post('/api/compare-repos', async (req, res) => {
                 error: 'Invalid comparison mode or repository count',
                 details: 'Mode "two" requires exactly 2 repositories'
             });
+                error: 'Invalid comparison mode or repository count',
+                details: 'Mode "two" requires exactly 2 repositories'
+            });
         }
-
         logger.info('Repository comparison completed', { mode, count: repositories.length });
-
         res.json({
             success: true,
             comparison,
@@ -824,6 +823,9 @@ app.post('/api/compare-repos', async (req, res) => {
     } catch (error) {
         logger.error('Error comparing repositories', error);
         res.status(500).json({
+            error: 'Failed to compare repositories',
+            details: error.message
+        });
             error: 'Failed to compare repositories',
             details: error.message
         });
