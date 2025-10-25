@@ -575,8 +575,7 @@ app.get('/api/repo-content', async (req, res) => {
         // Validate inputs
         owner = sanitizeString(owner);
         repo = sanitizeString(repo);
-        path = sanitizeString(path);
-
+        path = sanitizeString(path); // Note: Path is validated by GitHub API as well
         if (!owner || !isValidGitHubUsername(owner)) {
             return res.status(400).json({ error: 'Valid owner is required' });
         }

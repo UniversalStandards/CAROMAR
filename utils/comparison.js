@@ -21,21 +21,24 @@ class RepositoryComparison {
                     repo2: repo2.stargazers_count,
                     difference: repo1.stargazers_count - repo2.stargazers_count,
                     winner: repo1.stargazers_count > repo2.stargazers_count ? repo1.name : 
-                        repo2.stargazers_count > repo1.stargazers_count ? repo2.name : 'tie'
+                    winner: repo1.stargazers_count > repo2.stargazers_count ? repo1.name :
+                            repo2.stargazers_count > repo1.stargazers_count ? repo2.name : 'tie'
                 },
                 forks: {
                     repo1: repo1.forks_count,
                     repo2: repo2.forks_count,
                     difference: repo1.forks_count - repo2.forks_count,
                     winner: repo1.forks_count > repo2.forks_count ? repo1.name : 
-                        repo2.forks_count > repo1.forks_count ? repo2.name : 'tie'
+                    winner: repo1.forks_count > repo2.forks_count ? repo1.name :
+                            repo2.forks_count > repo1.forks_count ? repo2.name : 'tie'
                 },
                 watchers: {
                     repo1: repo1.watchers_count,
                     repo2: repo2.watchers_count,
                     difference: repo1.watchers_count - repo2.watchers_count,
                     winner: repo1.watchers_count > repo2.watchers_count ? repo1.name : 
-                        repo2.watchers_count > repo1.watchers_count ? repo2.name : 'tie'
+                    winner: repo1.watchers_count > repo2.watchers_count ? repo1.name :
+                            repo2.watchers_count > repo1.watchers_count ? repo2.name : 'tie'
                 },
                 size: {
                     repo1: repo1.size,
