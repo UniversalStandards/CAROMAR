@@ -781,6 +781,7 @@ app.post('/api/analyze-repos', async (req, res) => {
     } catch (error) {
         logger.error('Error analyzing repositories', error);
         res.status(500).json({
+
             error: 'Failed to analyze repositories',
             details: error.message
         });
