@@ -107,6 +107,17 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Limit request body size
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static('public'));
+
+// Request logging middleware
+app.use((req, res, next) => {
+    const startTime = Date.now();
+    res.on('finish', () => {
+        const duration = Date.now() - startTime;
+        logger.logResponse(req, res, duration);
+    });
+    next();
+});
+
 app.use('/api/', apiLimiter);
 
 // Request logging and performance tracking middleware
@@ -202,7 +213,6 @@ app.get('/api/search-repos', async (req, res) => {
             logger.warn('Invalid username provided', { username });
             return res.status(400).json({ error: 'Valid username is required' });
         }
-        }
 
         // Validate token format if provided
         if (token && !isValidGitHubToken(token)) {
@@ -296,7 +306,6 @@ app.get('/api/search-repos', async (req, res) => {
         });
     } catch (error) {
         logger.error('Error fetching repositories', error);
-
         if (error.response?.status === 403) {
             res.status(403).json({
                 error: 'API rate limit exceeded or insufficient permissions',
@@ -372,7 +381,6 @@ app.post('/api/fork-repo', async (req, res) => {
         });
     } catch (error) {
         logger.error('Error forking repository', error);
-
         let errorMessage = 'Failed to fork repository';
         let statusCode = 500;
 
@@ -407,6 +415,22 @@ app.post('/api/create-merged-repo', async (req, res) => {
         if (!name || !isValidRepositoryName(name)) {
             return res.status(400).json({ error: 'Valid repository name is required' });
         }
+        
+        if (!repositories || !Array.isArray(repositories) || repositories.length === 0) {
+            return res.status(400).json({ error: 'At least one repository is required' });
+        }
+        
+        if (repositories.length > 50) {
+            return res.status(400).json({ error: 'Maximum 50 repositories can be merged at once' });
+        }
+        
+        if (!token || !isValidGitHubToken(token)) {
+            return res.status(400).json({ error: 'Valid token is required' });
+        }
+        
+        description = sanitizeString(description);
+
+        logger.info('Creating merged repository', { name, repoCount: repositories.length });
 
         if (!repositories || !Array.isArray(repositories) || repositories.length === 0) {
             return res.status(400).json({ error: 'At least one repository is required' });
@@ -479,6 +503,8 @@ app.post('/api/create-merged-repo', async (req, res) => {
             targetPrivate: isPrivate,
             sourceMetadata
         });
+
+        logger.info('Merged repository created successfully', { full_name: newRepo.full_name });
 
         res.json({
             success: true,
