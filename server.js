@@ -9,8 +9,6 @@ const axios = require('axios');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
-const fs = require('fs').promises;
-const { execSync } = require('child_process');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
@@ -630,7 +628,6 @@ app.get('/api/user', async (req, res) => {
         };
 
         const userResponse = await axios.get('https://api.github.com/user', { headers });
-
         // Get rate limit info
         const rateLimitResponse = await axios.get('https://api.github.com/rate_limit', { headers });
 
