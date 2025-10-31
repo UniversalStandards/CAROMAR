@@ -162,13 +162,13 @@ class EnhancedCaromarApp {
         const openModal = () => {
             helpModal.style.display = 'flex';
             helpModal.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
         };
 
         const closeModal = () => {
             helpModal.style.display = 'none';
             helpModal.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
+            document.body.style.overflow = ''; // Restore scrolling
         };
 
         helpButton.addEventListener('click', openModal);

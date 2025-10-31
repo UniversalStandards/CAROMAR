@@ -514,7 +514,22 @@ app.post('/api/create-merged-repo', async (req, res) => {
                 ssh_url: createdRepository.ssh_url
             },
             message: 'Repository created and merged automatically',
-            automated_merge: mergeSummary
+            automated_merge: mergeSummary,
+            merge_instructions: {
+                repositories: repositories,
+                note: 'These commands are for manual execution. Always review repository names and URLs before running commands.',
+                steps: [
+                    'git clone ' + newRepo.clone_url,
+                    'cd ' + sanitizeString(newRepo.name),
+                    ...repositories.map(repo => [
+                        'mkdir "' + sanitizeString(repo.name) + '"',
+                        'cd "' + sanitizeString(repo.name) + '"',
+                        'git clone ' + repo.clone_url + ' .',
+                        'rm -rf .git',
+                        'cd ..'
+                    ]).flat()
+                ]
+            }
         });
     } catch (error) {
         logger.error('Error creating merged repository', error);
