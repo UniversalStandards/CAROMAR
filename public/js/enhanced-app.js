@@ -3,6 +3,7 @@
  * Provides comprehensive GitHub repository management features
  * @class EnhancedCaromarApp
  */
+<<<<<<< HEAD
 function escapeHtml(value) {
     return String(value ?? '')
         .replace(/&/g, '&amp;')
@@ -19,6 +20,8 @@ function formatBytes(bytes) {
     return `${(bytes / (1024 ** unitIndex)).toFixed(unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
 }
 
+=======
+>>>>>>> 28740d6 (Add comprehensive security module and enhanced test suite)
 class EnhancedCaromarApp {
     /**
      * Initialize the CAROMAR application

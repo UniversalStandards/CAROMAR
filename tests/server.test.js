@@ -9,7 +9,12 @@ const {
     isValidRepositoryName, 
     isValidGitHubToken,
     sanitizeString,
+<<<<<<< HEAD
     validatePagination
+=======
+    validatePagination,
+    validateSort 
+>>>>>>> 28740d6 (Add comprehensive security module and enhanced test suite)
 } = require('../utils/validation');
 
 // Create a minimal test server
