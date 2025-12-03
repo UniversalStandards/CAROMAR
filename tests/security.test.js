@@ -64,10 +64,11 @@ describe('Security Utilities', () => {
 
     describe('RateLimiter', () => {
         let limiter;
-<<<<<<< HEAD
-=======
+    describe('RateLimiter', () => {
+        let limiter;
         let intervals = [];
->>>>>>> 28740d6 (Add comprehensive security module and enhanced test suite)
+=======
+>>>>>>> 7bf8652 (Address code review feedback and optimize performance monitoring)
 
         beforeEach(() => {
             limiter = new RateLimiter();

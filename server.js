@@ -106,13 +106,17 @@ app.use(express.json({ limit: '10mb' })); // Limit request body size
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static('public'));
 
-// Request logging middleware
+// Request logging and performance tracking middleware
 app.use((req, res, next) => {
+    const completeRequest = performanceMonitor.startRequest(req.path, req.method);
     const startTime = Date.now();
+    
     res.on('finish', () => {
         const duration = Date.now() - startTime;
         logger.logResponse(req, res, duration);
+        completeRequest(res.statusCode);
     });
+    
     next();
 });
 
@@ -172,7 +176,6 @@ app.use('/api/', (req, res, next) => {
 // Set view engine - use VIEWS_PATH for Netlify serverless compatibility
 app.set('view engine', 'ejs');
 app.set('views', process.env.VIEWS_PATH || path.join(__dirname, 'views'));
-
 /**
  * Routes
  */
@@ -844,17 +847,23 @@ app.post('/api/compare-repos', async (req, res) => {
 });
 
 /**
- * Health check endpoint - optimized for Netlify serverless
+ * Health check endpoint - optimized for Netlify serverless with performance metrics
  * @route GET /api/health
  * @returns {Object} Health status and metrics
  */
 app.get('/api/health', (req, res) => {
+    const healthStatus = performanceMonitor.getHealthStatus();
     res.json({
-        status: 'healthy',
+        status: healthStatus.status,
         timestamp: new Date().toISOString(),
         environment: process.env.NETLIFY ? 'netlify-serverless' : 'local',
         version: require('./package.json').version,
-        uptime: process.uptime()
+        uptime: process.uptime(),
+        performance: {
+            recentErrorRate: healthStatus.recentErrorRate,
+            recentAvgDuration: healthStatus.recentAvgDuration
+        },
+        issues: healthStatus.issues
     });
 });
 
@@ -866,7 +875,6 @@ app.get('/api/health', (req, res) => {
 app.get('/api/metrics', (req, res) => {
     const summary = performanceMonitor.getSummary();
     const allMetrics = performanceMonitor.getAllMetrics();
-
     res.json({
         summary,
         endpoints: allMetrics,

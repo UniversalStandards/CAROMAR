@@ -116,9 +116,7 @@ class RateLimiter {
         }, 5 * 60 * 1000);
         
         // Allow cleanup interval to not block process exit
-        if (this.cleanupInterval.unref) {
-            this.cleanupInterval.unref();
-        }
+        this.cleanupInterval.unref();
     }
     
     /**
@@ -202,20 +200,20 @@ function isAllowedOrigin(origin, allowedOrigins = []) {
 
 =======
 /**
- * Hash a string for privacy (simple hash for rate limiting)
+ * Hash a string securely for rate limiting
+ * Uses Node.js crypto module for cryptographically secure hashing
  * @param {string} input - String to hash
  * @returns {string} - Hashed string
  */
 function simpleHash(input) {
-    let hash = 0;
-    if (!input || input.length === 0) return hash.toString();
+    if (!input || input.length === 0) return '0';
     
-    for (let i = 0; i < input.length; i++) {
-        const char = input.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash; // Convert to 32-bit integer
-    }
-    return hash.toString();
+    // Use crypto module for secure hashing
+    const crypto = require('crypto');
+    return crypto.createHash('sha256')
+        .update(input)
+        .digest('hex')
+        .substring(0, 16); // Use first 16 chars for shorter identifier
 }
 
 /**
