@@ -93,7 +93,7 @@ npm run lint:fix     # Auto-fix linting errors
 
 ### Input Validation
 - Sanitize all user inputs on both client and server
-- Use the validation utilities in `/utils/validation.js`
+- Use the validation utilities in `utils/validation.js`
 - Validate GitHub usernames, repository names, and other inputs
 - Return appropriate HTTP status codes for validation errors
 
