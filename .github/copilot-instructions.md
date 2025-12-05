@@ -110,7 +110,7 @@ npm run lint:fix     # Auto-fix linting errors
 - Monitor and display rate limits to users
 - Handle GitHub API errors gracefully
 - Implement delays between batch operations to respect rate limits
-- Use proper GitHub REST API v3 endpoints and Personal Access Tokens with the `token` prefix format
+- Use proper GitHub REST API v3 endpoints and Personal Access Tokens with the `token` prefix format (the current stable REST API version)
 
 ## Common Patterns
 
