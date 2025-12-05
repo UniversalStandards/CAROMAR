@@ -300,7 +300,6 @@ describe('Token Security - Prevent Leakage Scenarios', () => {
             .get('/api/user')
             .set('Authorization', `bearer ${validToken}`);
         
-        // Should fail since our implementation requires 'Bearer' with capital B
         expect(res.statusCode).toBe(400);
     });
 });
