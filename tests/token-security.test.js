@@ -81,7 +81,8 @@ app.get('/api/search-repos', (req, res) => {
 app.get('/api/repo-content', (req, res) => {
     const { owner, repo } = req.query;
     
-    // Extract token from Authorization header
+    // Extract token from Authorization header (optional for public repos)
+    // eslint-disable-next-line no-unused-vars
     const authHeader = req.headers.authorization;
     const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
     // Note: Token extraction via Authorization header is supported but not used in this mock
