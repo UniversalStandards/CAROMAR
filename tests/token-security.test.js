@@ -81,6 +81,9 @@ app.get('/api/search-repos', (req, res) => {
 app.get('/api/repo-content', (req, res) => {
     const { owner, repo } = req.query;
     
+    // Extract token from Authorization header
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
     // Note: Token extraction via Authorization header is supported but not used in this mock
     // In the real implementation, it would be used to increase rate limits
     
@@ -296,6 +299,7 @@ describe('Token Security - Prevent Leakage Scenarios', () => {
             .get('/api/user')
             .set('Authorization', `bearer ${validToken}`);
         
+        // Should fail since our implementation requires 'Bearer' with capital B
         expect(res.statusCode).toBe(400);
     });
 });
