@@ -11,7 +11,7 @@ CAROMAR (Copy A Repository Or Merge All Repositories) is a web application for m
 - **Template Engine**: EJS
 - **HTTP Client**: Axios for GitHub API integration
 - **Testing**: Jest with Supertest for API testing
-- **Linting**: ESLint (ECMAScript 2021 configuration)
+- **Linting**: ESLint (ES9 configuration with ECMAScript 2021 support)
 - **Development Tools**: Nodemon for hot-reloading
 
 ## Architecture Patterns
@@ -93,7 +93,7 @@ npm run lint:fix     # Auto-fix linting errors
 
 ### Input Validation
 - Sanitize all user inputs on both client and server
-- Use the validation utilities in `utils/validation.js`
+- Use the validation utilities in `/utils/validation.js`
 - Validate GitHub usernames, repository names, and other inputs
 - Return appropriate HTTP status codes for validation errors
 
@@ -110,8 +110,7 @@ npm run lint:fix     # Auto-fix linting errors
 - Monitor and display rate limits to users
 - Handle GitHub API errors gracefully
 - Implement delays between batch operations to respect rate limits
-- Use GitHub REST API v3 (the current stable REST API version)
-- Authentication uses Personal Access Tokens with `token` prefix format
+- Use proper GitHub REST API v3 endpoints and Personal Access Tokens with the `token` prefix format
 
 ## Common Patterns
 
@@ -145,10 +144,8 @@ const response = await axios.get(url, {
         'Accept': 'application/vnd.github.v3+json'
     }
 });
-```
 
 **Note**: The codebase currently uses `token ${token}` format for authentication, which is supported by GitHub. While `Bearer ${token}` is the modern recommended format, the existing pattern works correctly with GitHub's REST API v3.
-
 ## File Organization
 
 - `/public/css/` - Stylesheets
