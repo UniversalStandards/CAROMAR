@@ -203,7 +203,6 @@ app.get('/', (req, res) => {
 app.get('/api/search-repos', async (req, res) => {
     try {
         let { username, type = 'all', sort = 'updated', per_page = 100, page = 1 } = req.query;
-
         // Extract token from Authorization header
         const authHeader = req.headers.authorization;
         const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
@@ -583,7 +582,6 @@ app.post('/api/create-merged-repo', async (req, res) => {
 app.get('/api/repo-content', async (req, res) => {
     try {
         let { owner, repo, path = '' } = req.query;
-
         // Extract token from Authorization header
         const authHeader = req.headers.authorization;
         const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
@@ -634,7 +632,6 @@ app.get('/api/user', async (req, res) => {
         // Extract token from Authorization header
         const authHeader = req.headers.authorization;
         const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
-
         if (!token || !isValidGitHubToken(token)) {
             return res.status(400).json({ error: 'Valid token is required' });
         }
@@ -738,6 +735,7 @@ app.get('/api/validate-token', async (req, res) => {
 app.get('/api/validate-token', async (req, res) => {
     try {
         const token = getBearerToken(req);
+
         
         if (!token) {
             return res.status(400).json({ error: 'Token is required' });
