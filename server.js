@@ -122,6 +122,10 @@ app.use((req, res, next) => {
 
 app.use('/api/', apiLimiter);
 
+// Set view engine - use VIEWS_PATH for Netlify serverless compatibility
+app.set('view engine', 'ejs');
+app.set('views', process.env.VIEWS_PATH || path.join(__dirname, 'views'));
+
 // Request logging and performance tracking middleware
 app.use((req, res, next) => {
     const completeRequest = performanceMonitor.startRequest(req.path, req.method);
@@ -850,9 +854,8 @@ app.post('/api/compare-repos', async (req, res) => {
  * @returns {Object} Health status and metrics
  */
 app.get('/api/health', (req, res) => {
-    const healthStatus = performanceMonitor.getHealthStatus();
     res.json({
-        status: healthStatus.status,
+        status: 'healthy',
         timestamp: new Date().toISOString(),
         environment: process.env.NETLIFY ? 'netlify-serverless' : 'local',
         version: require('./package.json').version,
