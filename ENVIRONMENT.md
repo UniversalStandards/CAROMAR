@@ -42,7 +42,6 @@ However, for advanced features and production optimization, you can configure th
 - **Description:** Comma-separated list of origins allowed to make state-changing (POST/PUT/PATCH/DELETE) requests to `/api/*`. Supports exact matches and trailing-`*` prefix wildcards (e.g. `https://example.com*`). Requests with no `Origin` header (same-origin, curl, server-to-server) are always allowed.
 - **Example:** `ALLOWED_ORIGINS=https://caromar.example.com,https://staging.example.com`
 - **When to use:** When you want to lock down who can call the write endpoints of a deployed instance (CSRF defense-in-depth). Leave unset for the default fully-open behavior.
-
 ### GitHub OAuth (Future Feature - Not Implemented)
 
 #### `GITHUB_CLIENT_ID` (Optional)
@@ -117,6 +116,9 @@ However, for advanced features and production optimization, you can configure th
    # GitHub OAuth (Placeholder for future)
    # GITHUB_CLIENT_ID=
    # GITHUB_CLIENT_SECRET=
+   # GitHub OAuth (Placeholder for future)
+   # GITHUB_CLIENT_ID=
+   # GITHUB_CLIENT_SECRET=
 
    # Session Secret (Placeholder for future)
    # SESSION_SECRET=
@@ -147,6 +149,9 @@ LOG_LEVEL=DEBUG
 # Security (optional)
 # ALLOWED_ORIGINS=http://localhost:3000
 
+# Future OAuth Configuration (not implemented)
+# GITHUB_CLIENT_ID=your_client_id
+# GITHUB_CLIENT_SECRET=your_client_secret
 # Future OAuth Configuration (not implemented)
 # GITHUB_CLIENT_ID=your_client_id
 # GITHUB_CLIENT_SECRET=your_client_secret
@@ -207,6 +212,7 @@ netlify env:import .env
 - `LOG_LEVEL=INFO` - Control logging verbosity
 - `ALLOWED_ORIGINS` - Lock down which origins can call write endpoints
 - Future: OAuth credentials for enhanced authentication
+- Future: OAuth credentials for enhanced authentication
 
 ---
 
@@ -224,6 +230,9 @@ LOG_LEVEL=INFO
 # Security (optional, recommended if you control the calling frontend's origin)
 # ALLOWED_ORIGINS=https://your-production-domain.com
 
+# Future OAuth (when implemented)
+# GITHUB_CLIENT_ID=production_client_id
+# GITHUB_CLIENT_SECRET=production_secret
 # Future OAuth (when implemented)
 # GITHUB_CLIENT_ID=production_client_id
 # GITHUB_CLIENT_SECRET=production_secret
@@ -374,7 +383,6 @@ PORT=3001 npm start
 
 - This means `ALLOWED_ORIGINS` is set and the calling frontend's origin isn't in the list
 - Add the frontend's exact origin (scheme + host + port) to `ALLOWED_ORIGINS`, or unset the variable to restore the default open behavior
-
 ---
 
 ## Quick Reference
