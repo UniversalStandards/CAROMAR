@@ -8,6 +8,9 @@
 [build.environment]
   NODE_ENV = "production"
   NPM_FLAGS = "--legacy-peer-deps"
+[build.environment]
+  NODE_ENV = "production"
+  NPM_FLAGS = "--legacy-peer-deps"
 
 [context.production.environment]
   NODE_VERSION = "24"
@@ -93,4 +96,3 @@
 # Deploy preview context
 [context.deploy-preview]
   command = "npm ci --include=dev --ignore-scripts --allow-scripts= && npm run build"
-
