@@ -39,6 +39,7 @@ This document outlines all the issues that were identified and fixed to ensure p
   ```json
   "engines": {
     "node": ">=24.0.0",
+
     "npm": ">=9.0.0"
   }
   ```
@@ -263,6 +264,7 @@ This document outlines all the issues that were identified and fixed to ensure p
    - Fast npm ci instead of npm install
    - Development dependencies explicitly included for validation tooling
    - Install scripts disabled by default for supply-chain safety
+   - Production flag set appropriately
    - Minimal build time (~30-60 seconds)
 
 ---
