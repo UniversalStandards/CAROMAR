@@ -209,7 +209,6 @@ Choose between two operation modes:
 ### Optional: Analytics & Comparison
 - Use the Analytics panel to generate a statistics report across your selected (or all) repositories
 - Use the Comparison panel to compare two repositories head-to-head, build a multi-repository ranking matrix, or find the "best" repository by a chosen criterion
-
 ---
 
 ## GitHub Token Setup
@@ -225,6 +224,8 @@ To use CAROMAR, you need a GitHub Personal Access Token:
 5. Enter it in the CAROMAR application
 
 **Security Note:** Your token is stored locally in your browser and sent to CAROMAR only in the `Authorization` header for the request that needs it. It is never sent in query parameters or request bodies, so it is not exposed through URLs or browser history. Use HTTPS in production and grant the minimum GitHub permissions required for the operation.
+
+---
 
 ---
 
@@ -273,7 +274,6 @@ The application provides several REST API endpoints:
 - express-rate-limit (per-IP rate limiting) plus a custom per-identifier rate limiter
 - Custom input validation, sanitization, and suspicious-pattern (XSS) detection
 - CSRF-style origin validation and Content-Type enforcement on write endpoints
-
 ### Infrastructure
 - Netlify Functions (Serverless)
 - Netlify CDN (Static assets)
@@ -375,7 +375,6 @@ npm run test:watch
 ```
 
 CAROMAR ships a comprehensive automated test suite covering server endpoints, security utilities, input validation, the atomic merge engine, the frontend/API response contract, and Authorization-header token handling — including a real-server integration suite that exercises `server.js` directly.
-
 ---
 
 ## Contributing
@@ -400,6 +399,9 @@ We welcome contributions! Please follow these steps:
 - **[DEPLOYMENT_FIXES.md](./DEPLOYMENT_FIXES.md)** - Deployment fixes summary
 - **[DEPLOYMENT_COMPLETE.md](./DEPLOYMENT_COMPLETE.md)** - Deployment completion report
 - **[ENVIRONMENT.md](./ENVIRONMENT.md)** - Environment variable configuration guide
+- **[SETUP.md](./SETUP.md)** - Detailed setup instructions
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Development guide
+- **[API.md](./API.md)** - API documentation
 - **[SETUP.md](./SETUP.md)** - Detailed setup instructions
 - **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Development guide
 - **[API.md](./API.md)** - API documentation
@@ -458,6 +460,8 @@ If you encounter any issues or have questions:
 ✅ **Security Hardened**
 
 ---
+
+**Built with ❤️ by US-SPURS**
 
 **Built with ❤️ by US-SPURS**
 
