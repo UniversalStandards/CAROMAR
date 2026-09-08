@@ -1,0 +1,14 @@
+# robots.txt for CAROMAR
+# Allows all search engine crawlers to index the site
+# Disallows crawling of API endpoints to prevent unnecessary load
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /.netlify/
+
+# Sitemap location
+Sitemap: https://caromar.netlify.app/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
