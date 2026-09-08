@@ -1,0 +1,58 @@
+{
+  "name": "caromar",
+  "version": "1.0.0",
+  "description": "Copy A Repository Or Merge All Repositories - A web application for repository management",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint . --ext .js --ignore-pattern node_modules/",
+    "lint:fix": "eslint . --ext .js --fix --ignore-pattern node_modules/",
+    "build": "npm ci --production=false",
+    "predeploy": "npm run lint && npm test",
+    "validate": "node scripts/validate-deployment.js",
+    "monitor": "node scripts/monitor-deployment.js"
+  },
+  "keywords": [
+    "github",
+    "repository",
+    "fork",
+    "merge",
+    "copy",
+    "netlify",
+    "serverless"
+  ],
+  "author": "US-SPURS",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UniversalStandards/CAROMAR.git"
+  },
+  "bugs": {
+    "url": "https://github.com/UniversalStandards/CAROMAR/issues"
+  },
+  "homepage": "https://github.com/UniversalStandards/CAROMAR#readme",
+  "dependencies": {
+    "axios": "^1.13.5",
+    "serverless-http": "^3.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.10",
+    "express": "^4.22.1",
+    "express-rate-limit": "^8.1.1",
+    "helmet": "^8.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.38.0",
+    "jest": "^30.1.3",
+    "nodemon": "^3.0.1",
+    "supertest": "^7.1.4"
+  }
+}
