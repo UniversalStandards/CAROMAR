@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CAROMAR - A powerful tool to copy, fork, or merge GitHub repositories with ease">
+    <meta name="author" content="CAROMAR Team">
+    <meta name="theme-color" content="#0969da">
+    <title>CAROMAR - Copy A Repository Or Merge All Repositories</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/icons-fallback.css">
+</head>
+<body>
+    <!-- Skip to main content link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <header role="banner">
+        <div class="container header-content">
+            <div>
+                <h1><i class="fab fa-github" aria-hidden="true"></i> CAROMAR</h1>
+                <p>Copy A Repository Or Merge All Repositories</p>
+            </div>
+            <button id="help-button" class="btn btn-small" aria-label="Show keyboard shortcuts">
+                <i class="fas fa-question-circle"></i> Help
+            </button>
+        </div>
+    </header>
+
+    <main class="container" id="main-content" role="main">
+        <!-- Authentication Section -->
+        <section id="auth-section" class="card" aria-labelledby="auth-heading">
+            <h2 id="auth-heading"><i class="fas fa-key" aria-hidden="true"></i> GitHub Authentication</h2>
+            <div class="auth-info">
+                <p>To use CAROMAR, you need to provide a GitHub Personal Access Token.</p>
+                <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" class="link" aria-label="Create Personal Access Token on GitHub (opens in new tab)">
+                    <i class="fas fa-external-link-alt" aria-hidden="true"></i> Create Personal Access Token
+                </a>
+            </div>
+            <div class="input-group">
+                <label for="github-token" class="sr-only">GitHub Personal Access Token</label>
+                <input type="password" id="github-token" placeholder="Enter your GitHub Personal Access Token" aria-required="true" />
+                <button id="validate-token" class="btn btn-primary" aria-label="Validate GitHub Token">
+                    <i class="fas fa-check" aria-hidden="true"></i> Validate Token
+                </button>
+            </div>
+            <div id="user-info" class="user-info" style="display: none;" role="status" aria-live="polite">
+                <img id="user-avatar" src="" alt="" />
+                <div>
+                    <strong id="user-name"></strong>
+                    <p id="user-username"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Repository Search Section -->
+        <section id="repo-section" class="card" style="display: none;" aria-labelledby="search-heading">
+            <h2 id="search-heading"><i class="fas fa-search" aria-hidden="true"></i> Find Repositories</h2>
+            <div class="search-controls">
+                <div class="input-group">
+                    <label for="username-input" class="sr-only">GitHub username or organization</label>
+                    <input type="text" id="username-input" placeholder="Enter GitHub username or organization" aria-required="true" />
+                    <button id="search-repos" class="btn btn-secondary" aria-label="Search for repositories">
+                        <i class="fas fa-search" aria-hidden="true"></i> Search Repositories
+                    </button>
+                </div>
+                
+                <div class="filter-controls" role="group" aria-label="Repository filters">
+                    <div class="filter-group">
+                        <label for="repo-type">Repository Type:</label>
+                        <select id="repo-type" aria-label="Filter repositories by type">
+                            <option value="all">All Repositories</option>
+                            <option value="owner">Owned by User</option>
+                            <option value="member">Member Access</option>
+                            <option value="public">Public Only</option>
+                            <option value="private">Private Only</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="repo-sort">Sort By:</label>
+                        <select id="repo-sort" aria-label="Sort repositories by">
+                            <option value="updated">Last Updated</option>
+                            <option value="created">Created Date</option>
+                            <option value="pushed">Last Push</option>
+                            <option value="name">Name</option>
+                            <option value="stars">Stars</option>
+                            <option value="size">Size</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="language-filter">Language:</label>
+                        <select id="language-filter" aria-label="Filter repositories by programming language">
+                            <option value="">All Languages</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="search-stats" id="search-stats" style="display: none;" role="status" aria-live="polite">
+                    <span id="repo-count">0 repositories found</span>
+                    <span id="rate-limit-info" aria-label="API rate limit information"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Repository List Section -->
+        <section id="repos-list-section" class="card" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-list"></i> Select Repositories</h2>
+                <div class="action-buttons">
+                    <button id="select-all" class="btn btn-small">
+                        <i class="fas fa-check-double"></i> Select All
+                    </button>
+                    <button id="deselect-all" class="btn btn-small">
+                        <i class="fas fa-times"></i> Deselect All
+                    </button>
+                </div>
+            </div>
+            
+            <div class="operation-modes">
+                <h3>Choose Operation:</h3>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="operation" value="fork" checked>
+                        <i class="fas fa-code-branch"></i> Fork Individual Repositories
+                        <span class="description">Fork each selected repository individually to your account</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="operation" value="merge">
+                        <i class="fas fa-layer-group"></i> Merge into Single Repository
+                        <span class="description">Create a single repository with all selected repos as folders</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="merge-options" style="display: none;">
+                <div class="merge-config">
+                    <div class="input-group">
+                        <input type="text" id="merged-repo-name" placeholder="Enter name for merged repository" required />
+                        <button id="check-repo-name" class="btn btn-small">
+                            <i class="fas fa-check"></i> Check Availability
+                        </button>
+                    </div>
+                    <div class="input-group">
+                        <textarea id="merged-repo-description" placeholder="Enter description for merged repository (optional)" rows="2"></textarea>
+                    </div>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="merged-repo-private">
+                            <i class="fas fa-lock"></i> Make repository private
+                        </label>
+                    </div>
+                    <div class="merge-preview" id="merge-preview" style="display: none;">
+                        <h4>Merge Preview:</h4>
+                        <div id="merge-structure"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="repo-actions">
+                <div class="bulk-actions">
+                    <button id="preview-selected" class="btn btn-small">
+                        <i class="fas fa-eye"></i> Preview Selected
+                    </button>
+                    <button id="export-list" class="btn btn-small">
+                        <i class="fas fa-download"></i> Export List
+                    </button>
+                    <button id="import-list" class="btn btn-small">
+                        <i class="fas fa-upload"></i> Import List
+                    </button>
+                </div>
+                <div class="filter-actions">
+                    <input type="text" id="repo-search" placeholder="Filter repositories..." />
+                    <button id="clear-filters" class="btn btn-small">
+                        <i class="fas fa-times"></i> Clear Filters
+                    </button>
+                </div>
+            </div>
+
+            <div id="repos-list" class="repos-grid">
+                <!-- Repositories will be loaded here -->
+            </div>
+
+            <div class="action-section">
+                <button id="execute-action" class="btn btn-success" disabled>
+                    <i class="fas fa-play"></i> Execute Selected Action
+                </button>
+                <div id="progress-section" style="display: none;">
+                    <div class="progress-bar">
+                        <div id="progress-fill"></div>
+                    </div>
+                    <div id="progress-text"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="results-section" class="card" style="display: none;">
+            <h2><i class="fas fa-check-circle"></i> Results</h2>
+            <div id="results-content">
+                <!-- Results will be displayed here -->
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section id="analytics-section" class="card" style="display: none;">
+            <h2><i class="fas fa-chart-bar"></i> Repository Analytics</h2>
+            <div class="section-actions">
+                <button id="run-analytics" class="btn btn-primary">
+                    <i class="fas fa-chart-bar"></i> Generate Analytics Report
+                </button>
+            </div>
+            <div id="analytics-content" style="display: none;">
+                <!-- Analytics will be displayed here -->
+            </div>
+        </section>
+
+        <!-- Comparison Section -->
+        <section id="comparison-section" class="card" style="display: none;">
+            <h2><i class="fas fa-balance-scale"></i> Repository Comparison</h2>
+            <div class="comparison-controls">
+                <div class="input-group">
+                    <label for="comparison-mode">Comparison Mode:</label>
+                    <select id="comparison-mode">
+                        <option value="two">Compare Two Repositories</option>
+                        <option value="multiple">Compare Multiple Repositories</option>
+                        <option value="best">Find Best Repository</option>
+                    </select>
+                </div>
+                <div id="best-criteria-group" style="display: none;" class="input-group">
+                    <label for="best-criteria">Criteria:</label>
+                    <select id="best-criteria">
+                        <option value="stars">Most Stars</option>
+                        <option value="forks">Most Forks</option>
+                        <option value="watchers">Most Watchers</option>
+                        <option value="recent">Most Recently Updated</option>
+                        <option value="size">Largest Size</option>
+                        <option value="issues">Fewest Issues</option>
+                    </select>
+                </div>
+                <button id="run-comparison" class="btn btn-primary">
+                    <i class="fas fa-balance-scale"></i> Compare Selected Repositories
+                </button>
+            </div>
+            <div id="comparison-content" style="display: none;">
+                <!-- Comparison results will be displayed here -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 CAROMAR. A tool for GitHub repository management.</p>
+        </div>
+    </footer>
+
+    <!-- Keyboard Shortcuts Help Modal -->
+    <div id="help-modal" class="modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="help-modal-title" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="help-modal-title">Keyboard Shortcuts</h2>
+                <button id="close-help" class="close-button" aria-label="Close help">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="shortcuts-grid">
+                    <div class="shortcut-section">
+                        <h3>Selection</h3>
+                        <div class="shortcut-item">
+                            <kbd>Ctrl/Cmd + A</kbd>
+                            <span>Select all repositories</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Ctrl/Cmd + D</kbd>
+                            <span>Deselect all repositories</span>
+                        </div>
+                    </div>
+                    
+                    <div class="shortcut-section">
+                        <h3>Navigation</h3>
+                        <div class="shortcut-item">
+                            <kbd>Ctrl/Cmd + F</kbd>
+                            <span>Focus repository search</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Esc</kbd>
+                            <span>Close this help dialog</span>
+                        </div>
+                    </div>
+                    
+                    <div class="shortcut-section">
+                        <h3>Tips</h3>
+                        <ul class="tips-list">
+                            <li>Click on a repository card to toggle selection</li>
+                            <li>Use filters to narrow down repository list</li>
+                            <li>Export/Import allows you to save and restore selections</li>
+                            <li>Analytics and Comparison work with selected repos or all repos</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/enhanced-app.js"></script>
+</body>
+</html>
