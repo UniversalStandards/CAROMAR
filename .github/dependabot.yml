@@ -1,0 +1,85 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+
+updates:
+  # Application and server dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+      timezone: "America/Los_Angeles"
+
+    open-pull-requests-limit: 10
+    rebase-strategy: "auto"
+    pull-request-branch-name:
+      separator: "-"
+
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 3
+
+    groups:
+      security-updates:
+        applies-to: "security-updates"
+        patterns:
+          - "*"
+
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      major-updates:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+
+  # GitHub Actions used by repository automation
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:30"
+      timezone: "America/Los_Angeles"
+
+    open-pull-requests-limit: 10
+    rebase-strategy: "auto"
+    pull-request-branch-name:
+      separator: "-"
+
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 3
+
+    groups:
+      security-updates:
+        applies-to: "security-updates"
+        patterns:
+          - "*"
+
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      major-updates:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
