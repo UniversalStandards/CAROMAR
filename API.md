@@ -11,7 +11,7 @@ http://localhost:3000/api
 ## Authentication
 All API endpoints require a GitHub Personal Access Token for authentication.
 
-**Security Requirement:** Tokens must be transmitted via the `Authorization` header for GET requests, or in the request body for POST requests. **Never send tokens via query parameters** as they can be logged by servers, proxies, and browser history.
+**Security Requirement:** Tokens must be transmitted via the `Authorization: Bearer <token>` header for every authenticated request. **Never send tokens in query parameters or request bodies** because they can be captured by logs, proxies, request snapshots, or browser history.
 
 **For GET requests:**
 ```
@@ -19,7 +19,7 @@ Authorization: Bearer ghp_your_token_here
 ```
 
 **For POST requests:**
-Include the token in the JSON request body.
+Use the same `Authorization` header; the JSON body contains only operation data.
 
 Required scopes:
 - `repo` - Full control of private repositories
@@ -173,7 +173,6 @@ Create a new repository and automatically merge selected repositories into subdi
 {
   "name": "merged-repo",
   "description": "Merged repository containing multiple projects",
-  "token": "ghp_...",
   "private": false,
   "repositories": [
     {
@@ -192,8 +191,10 @@ Create a new repository and automatically merge selected repositories into subdi
 
 **Validation Rules (repositories[]):**
 - `name` must be a valid GitHub repository name (`[A-Za-z0-9._-]`, max 100 chars)
-- `full_name` must match `owner/repository`
-- `clone_url` must be an HTTPS GitHub URL (`https://github.com/<owner>/<repo>[.git]`)
+- `full_name` must match `owner/repository`, with a valid GitHub owner and repository name
+- `clone_url` must be an HTTPS GitHub URL for the same `owner/repository`
+- `name`, `full_name`, and `clone_url` must identify the same source repository
+- Duplicate source repositories and duplicate destination folder names are rejected
 
 Invalid descriptors return `400` with an indexed error message (example: `Repository at index 0 has an invalid clone_url`).
 
@@ -209,30 +210,50 @@ Invalid descriptors return `400` with an indexed error message (example: `Reposi
   },
   "message": "Repository created and merged automatically",
   "automated_merge": {
+    "status": "completed",
+    "atomic": true,
+    "targetBranch": "main",
+    "commitSha": "0123456789abcdef0123456789abcdef01234567",
+    "sourceHistoryPreserved": false,
     "mergedFiles": 42,
+    "mergedBytes": 123456,
+    "plannedFiles": 42,
+    "plannedBytes": 123456,
     "sourceRepositories": 3,
-    "skippedFiles": [],
     "repositoryResults": [
       {
         "full_name": "owner/repo1",
         "folder": "repo1",
+        "sourceFiles": 12,
         "mergedFiles": 12,
-        "skippedFiles": [],
+        "mergedBytes": 34567,
+        "failedFiles": [],
         "capabilities": ["frontend", "testing"],
+        "analysisType": "deterministic",
         "riskScore": 0.1
       }
     ],
-    "aiInsights": [
+    "insights": [
       {
+        "analysisType": "deterministic",
         "repository": "owner/repo1",
         "recommendation": "Repository merged cleanly. No additional remediation required.",
-        "confidence": 0.98,
+        "evidence": {
+          "mergedFiles": 12,
+          "mergedBytes": 34567,
+          "failedFiles": 0,
+          "capabilities": ["frontend", "testing"]
+        },
         "riskScore": 0.1
       }
     ]
   }
 }
 ```
+
+The merge engine stages source blobs with the Git Data API, creates one tree and one commit, and advances the target branch once with `force: false`. Source history is not copied into the target; source files are placed under one folder per repository. Git executable files, symlinks, and submodule entries retain their Git modes. Truncated trees, empty sources, unsupported modes, oversized files, and aggregate file/byte limits fail closed before publication.
+
+If target creation succeeds but staging or publication fails, the endpoint returns a structured error and attempts to delete the newly created target repository. The response includes `code`, safe failure `details`, and `rollback`; a failed rollback requires manual cleanup. No partial merge is reported as successful.
 
 ### Get Repository Content
 Get the contents of a specific file or directory in a repository.

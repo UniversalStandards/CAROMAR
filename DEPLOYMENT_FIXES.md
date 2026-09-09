@@ -34,11 +34,11 @@ This document outlines all the issues that were identified and fixed to ensure p
 **Problem:** No Node version specification caused potential compatibility issues.
 
 **Solution:**
-- Created `.nvmrc` with Node 18
+- Created `.nvmrc` with Node 24
 - Added engines field to package.json:
   ```json
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=24.0.0",
     "npm": ">=9.0.0"
   }
   ```
@@ -52,7 +52,7 @@ This document outlines all the issues that were identified and fixed to ensure p
 **Problem:** Build script was just an echo statement with no actual build process.
 
 **Solution:**
-- Changed build command from `echo 'No build process needed'` to `npm ci --production=false`
+- Changed build command from `echo 'No build process needed'` to `npm ci --include=dev --ignore-scripts --allow-scripts=`
 - Added predeploy script: `npm run lint && npm test`
 - Added validate script: `node scripts/validate-deployment.js`
 
@@ -204,7 +204,7 @@ This document outlines all the issues that were identified and fixed to ensure p
 **Added Scripts:**
 ```json
 {
-  "build": "npm ci --production=false",
+  "build": "npm ci --include=dev --ignore-scripts --allow-scripts=",
   "predeploy": "npm run lint && npm test",
   "validate": "node scripts/validate-deployment.js"
 }
@@ -261,7 +261,8 @@ This document outlines all the issues that were identified and fixed to ensure p
 
 4. **Build Optimization:**
    - Fast npm ci instead of npm install
-   - Production flag set appropriately
+   - Development dependencies explicitly included for validation tooling
+   - Install scripts disabled by default for supply-chain safety
    - Minimal build time (~30-60 seconds)
 
 ---

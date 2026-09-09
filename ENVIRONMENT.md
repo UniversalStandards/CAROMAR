@@ -180,7 +180,7 @@ Environment variables can be configured in `netlify.toml`:
   LOG_LEVEL = "INFO"
 
 [context.production.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "24"
 
 [context.deploy-preview.environment]
   NODE_ENV = "preview"

@@ -2,7 +2,7 @@
 # Production-ready serverless deployment configuration
 
 [build]
-  command = "npm ci --production=false"
+  command = "npm ci --include=dev --ignore-scripts --allow-scripts="
   publish = "public"
 
 [build.environment]
@@ -10,13 +10,13 @@
   NPM_FLAGS = "--legacy-peer-deps"
 
 [context.production.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "24"
 
 [context.deploy-preview.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "24"
 
 [context.branch-deploy.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "24"
 
 # Functions configuration
 [functions]
@@ -92,4 +92,4 @@
 
 # Deploy preview context
 [context.deploy-preview]
-  command = "npm ci && npm run build"
+  command = "npm ci --include=dev --ignore-scripts --allow-scripts= && npm run build"

@@ -27,7 +27,7 @@ function isValidRepositoryName(repoName) {
     }
     // Repository name rules: alphanumeric + hyphens/underscores/dots, 1-100 characters
     const repoNameRegex = /^[a-zA-Z0-9._-]{1,100}$/;
-    return repoNameRegex.test(repoName);
+    return repoName !== '.' && repoName !== '..' && repoNameRegex.test(repoName);
 }
 
 /**
@@ -77,9 +77,10 @@ function isValidRepoPath(repoPath) {
     if (repoPath.startsWith('/') || repoPath.includes('\\')) {
         return false;
     }
-    // Disallow any path traversal segment
+    // Disallow any path traversal or dot segment. Dot segments are not valid
+    // source-tree paths and must never become merge destination folders.
     const segments = repoPath.split('/');
-    if (segments.some(segment => segment === '..')) {
+    if (repoPath.endsWith('/') || segments.some(segment => segment === '.' || segment === '..' || segment === '')) {
         return false;
     }
     // Allow only common filename/path characters
@@ -119,12 +120,53 @@ function validateSort(sort, allowedValues) {
  * @returns {boolean} - True if valid GitHub HTTPS clone URL
  */
 function isValidGitHubCloneUrl(cloneUrl) {
+    return Boolean(parseGitHubCloneUrl(cloneUrl));
+}
+
+/**
+ * Parse a GitHub HTTPS clone URL and return its normalized repository identity.
+ * @param {string} cloneUrl - GitHub clone URL
+ * @returns {{owner: string, repository: string, fullName: string}|null}
+ */
+function parseGitHubCloneUrl(cloneUrl) {
     if (!cloneUrl || typeof cloneUrl !== 'string') {
-        return false;
+        return null;
     }
 
-    const gitHubCloneUrlRegex = /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+(?:\.git)?$/;
-    return gitHubCloneUrlRegex.test(cloneUrl);
+    let parsedUrl;
+    try {
+        parsedUrl = new URL(cloneUrl);
+    } catch {
+        return null;
+    }
+
+    if (parsedUrl.protocol !== 'https:' || parsedUrl.hostname.toLowerCase() !== 'github.com' || parsedUrl.search || parsedUrl.hash) {
+        return null;
+    }
+
+    const pathSegments = parsedUrl.pathname.split('/').filter(Boolean);
+    const containsEncodedPathSegment = pathSegments.some(segment => {
+        try {
+            return decodeURIComponent(segment) !== segment;
+        } catch {
+            return true;
+        }
+    });
+    if (pathSegments.length !== 2 || containsEncodedPathSegment) {
+        return null;
+    }
+
+    const owner = pathSegments[0];
+    const repository = pathSegments[1].replace(/\.git$/, '');
+    if (!isValidGitHubUsername(owner) || !isValidRepositoryName(repository)) {
+        return null;
+    }
+
+    return {
+        owner,
+        repository,
+        fullName: `${owner}/${repository}`
+    };
 }
 
 /**
@@ -138,6 +180,8 @@ function validateMergeRepositoryDescriptors(repositories) {
     }
 
     const sanitizedRepositories = [];
+    const seenFullNames = new Set();
+    const seenFolders = new Set();
 
     for (let index = 0; index < repositories.length; index += 1) {
         const repository = repositories[index] || {};
@@ -149,7 +193,8 @@ function validateMergeRepositoryDescriptors(repositories) {
             return { isValid: false, repositories: [], error: `Repository at index ${index} has an invalid name` };
         }
 
-        if (!sanitizedFullName || !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(sanitizedFullName)) {
+        const fullNameParts = sanitizedFullName.split('/');
+        if (fullNameParts.length !== 2) {
             return { isValid: false, repositories: [], error: `Repository at index ${index} has an invalid full_name` };
         }
 
@@ -157,10 +202,42 @@ function validateMergeRepositoryDescriptors(repositories) {
             return { isValid: false, repositories: [], error: `Repository at index ${index} has an invalid clone_url` };
         }
 
+        const [owner, repositoryName] = fullNameParts;
+        const cloneIdentity = parseGitHubCloneUrl(sanitizedCloneUrl);
+        const normalizedFullName = `${owner}/${repositoryName}`;
+        const fullNameKey = normalizedFullName.toLowerCase();
+        const folderKey = repositoryName.toLowerCase();
+
+        if (!isValidGitHubUsername(owner) || !isValidRepositoryName(repositoryName)) {
+            return { isValid: false, repositories: [], error: `Repository at index ${index} has an invalid full_name` };
+        }
+
+        if (!cloneIdentity || cloneIdentity.fullName.toLowerCase() !== fullNameKey) {
+            return { isValid: false, repositories: [], error: `Repository at index ${index} has mismatched repository identity` };
+        }
+
+        if (sanitizedName.toLowerCase() !== folderKey) {
+            return { isValid: false, repositories: [], error: `Repository at index ${index} has mismatched name and full_name` };
+        }
+
+        if (seenFullNames.has(fullNameKey)) {
+            return { isValid: false, repositories: [], error: `Repository at index ${index} duplicates a previously selected repository` };
+        }
+
+        if (seenFolders.has(folderKey)) {
+            return { isValid: false, repositories: [], error: `Repository at index ${index} conflicts with an existing merge folder` };
+        }
+
+        seenFullNames.add(fullNameKey);
+        seenFolders.add(folderKey);
+
         sanitizedRepositories.push({
-            name: sanitizedName,
-            full_name: sanitizedFullName,
-            clone_url: sanitizedCloneUrl
+            name: repositoryName,
+            folder: repositoryName,
+            owner,
+            repository: repositoryName,
+            full_name: normalizedFullName,
+            clone_url: `https://github.com/${owner}/${repositoryName}.git`
         });
     }
 
@@ -189,6 +266,7 @@ module.exports = {
     validatePagination,
     validateSort,
     isValidGitHubCloneUrl,
+    parseGitHubCloneUrl,
     validateMergeRepositoryDescriptors,
     isValidEmail
 };

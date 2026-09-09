@@ -17,7 +17,11 @@ const logger = require('./utils/logger');
 const RepositoryAnalytics = require('./utils/analytics');
 const RepositoryComparison = require('./utils/comparison');
 const PerformanceMonitor = require('./utils/performance');
-const { mergeRepositoriesIntoTarget } = require('./utils/merge-automation');
+const {
+    MergeAutomationError,
+    mergeRepositoriesIntoTarget,
+    preflightSourceRepositories
+} = require('./utils/merge-automation');
 const {
     isValidGitHubUsername,
     isValidRepositoryName,
@@ -42,6 +46,29 @@ const PORT = process.env.PORT || 3000;
 
 // Initialize performance monitor
 const performanceMonitor = new PerformanceMonitor();
+
+function getBearerToken(req) {
+    const authHeader = req.headers.authorization;
+    return authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
+}
+
+async function rollbackCreatedRepository({ axiosClient, headers, fullName }) {
+    try {
+        await axiosClient.delete(`https://api.github.com/repos/${fullName}`, { headers });
+        return { attempted: true, succeeded: true };
+    } catch (error) {
+        logger.error('Failed to roll back newly created repository', {
+            fullName,
+            upstreamStatus: error.response?.status,
+            message: error.response?.data?.message || error.message
+        });
+        return {
+            attempted: true,
+            succeeded: false,
+            error: 'The target repository could not be removed automatically; manual cleanup is required.'
+        };
+    }
+}
 
 // Rate limiting (per-IP, coarse-grained)
 const apiLimiter = rateLimit({
@@ -285,13 +312,14 @@ app.get('/api/search-repos', async (req, res) => {
  * @route POST /api/fork-repo
  * @param {string} req.body.owner - Repository owner username
  * @param {string} req.body.repo - Repository name
- * @param {string} req.body.token - GitHub Personal Access Token
+ * @param {string} req.headers.authorization - GitHub Personal Access Token (Bearer token)
  * @param {string} [req.body.organization] - Optional organization to fork to
  * @returns {Object} Forked repository information
  */
 app.post('/api/fork-repo', async (req, res) => {
     try {
-        let { owner, repo, token, organization } = req.body;
+        let { owner, repo, organization } = req.body;
+        const token = getBearerToken(req);
 
         // Validate inputs
         owner = sanitizeString(owner);
@@ -364,8 +392,11 @@ app.post('/api/fork-repo', async (req, res) => {
 
 // New API endpoint to create a merged repository
 app.post('/api/create-merged-repo', async (req, res) => {
+    let createdRepository = null;
+    let requestToken = null;
     try {
-        let { name, description, repositories, token, private: isPrivate = false } = req.body;
+        let { name, description, repositories, private: isPrivate = false } = req.body;
+        requestToken = getBearerToken(req);
 
         // Validate inputs
         name = sanitizeString(name);
@@ -381,8 +412,12 @@ app.post('/api/create-merged-repo', async (req, res) => {
             return res.status(400).json({ error: 'Maximum 50 repositories can be merged at once' });
         }
 
-        if (!token || !isValidGitHubToken(token)) {
+        if (!requestToken || !isValidGitHubToken(requestToken)) {
             return res.status(400).json({ error: 'Valid token is required' });
+        }
+
+        if (typeof isPrivate !== 'boolean') {
+            return res.status(400).json({ error: 'private must be a boolean' });
         }
 
         const repositoryValidation = validateMergeRepositoryDescriptors(repositories);
@@ -400,6 +435,21 @@ app.post('/api/create-merged-repo', async (req, res) => {
             return res.status(400).json({ error: 'Repository description contains disallowed content' });
         }
 
+        const headers = {
+            'Authorization': `token ${requestToken}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'User-Agent': 'CAROMAR-App'
+        };
+
+        // Inspect source visibility before creating the target. A public target
+        // must never become an accidental publication channel for private code.
+        const sourceMetadata = await preflightSourceRepositories({
+            axiosClient: axios,
+            headers,
+            sourceRepositories: sanitizedRepositories,
+            targetPrivate: isPrivate
+        });
+
         logger.info('Creating merged repository', { name, repoCount: sanitizedRepositories.length });
 
         // Create the new repository
@@ -409,39 +459,31 @@ app.post('/api/create-merged-repo', async (req, res) => {
             private: isPrivate,
             auto_init: true
         }, {
-            headers: {
-                'Authorization': `token ${token}`,
-                'Accept': 'application/vnd.github.v3+json',
-                'User-Agent': 'CAROMAR-App'
-            }
+            headers
         });
 
-        const newRepo = createRepoResponse.data;
+        createdRepository = createRepoResponse.data;
 
-        logger.info('Merged repository created successfully', { full_name: newRepo.full_name });
-
-        const headers = {
-            'Authorization': `token ${token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'User-Agent': 'CAROMAR-App'
-        };
+        logger.info('Merged repository created successfully', { full_name: createdRepository.full_name });
 
         const mergeSummary = await mergeRepositoriesIntoTarget({
             axiosClient: axios,
             headers,
             sourceRepositories: sanitizedRepositories,
-            targetFullName: newRepo.full_name,
-            targetBranch: newRepo.default_branch || 'main'
+            targetFullName: createdRepository.full_name,
+            targetBranch: createdRepository.default_branch || 'main',
+            targetPrivate: isPrivate,
+            sourceMetadata
         });
 
         res.json({
             success: true,
             repository: {
-                name: newRepo.name,
-                full_name: newRepo.full_name,
-                html_url: newRepo.html_url,
-                clone_url: newRepo.clone_url,
-                ssh_url: newRepo.ssh_url
+                name: createdRepository.name,
+                full_name: createdRepository.full_name,
+                html_url: createdRepository.html_url,
+                clone_url: createdRepository.clone_url,
+                ssh_url: createdRepository.ssh_url
             },
             message: 'Repository created and merged automatically',
             automated_merge: mergeSummary
@@ -449,6 +491,28 @@ app.post('/api/create-merged-repo', async (req, res) => {
     } catch (error) {
         logger.error('Error creating merged repository', error);
 
+        let rollback = null;
+        if (createdRepository?.full_name && requestToken) {
+            rollback = await rollbackCreatedRepository({
+                axiosClient: axios,
+                headers: {
+                    'Authorization': `token ${requestToken}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'User-Agent': 'CAROMAR-App'
+                },
+                fullName: createdRepository.full_name
+            });
+        }
+
+        if (error instanceof MergeAutomationError) {
+            return res.status(error.statusCode || 502).json({
+                success: false,
+                error: error.message,
+                code: error.code,
+                details: error.details,
+                rollback
+            });
+        }
 
         if (error.response?.status === 422) {
             res.status(422).json({

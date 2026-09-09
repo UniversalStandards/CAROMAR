@@ -56,7 +56,7 @@ cd CAROMAR
 3. Choose your Git provider (GitHub)
 4. Select the CAROMAR repository
 5. Configure build settings (pre-filled from netlify.toml):
-   - **Build command:** `npm ci --production=false`
+   - **Build command:** `npm ci --include=dev --ignore-scripts --allow-scripts=`
    - **Publish directory:** `public`
    - **Functions directory:** `functions`
 6. Click "Deploy site"
@@ -91,7 +91,7 @@ The repository includes a comprehensive `netlify.toml` configuration file that h
 
 ```toml
 [build]
-  command = "npm ci --production=false"
+  command = "npm ci --include=dev --ignore-scripts --allow-scripts="
   publish = "public"
 ```
 
@@ -99,13 +99,13 @@ The repository includes a comprehensive `netlify.toml` configuration file that h
 
 Specified in `.nvmrc`:
 ```
-18
+24
 ```
 
 And in `package.json`:
 ```json
 "engines": {
-  "node": ">=18.0.0",
+  "node": ">=24.0.0",
   "npm": ">=9.0.0"
 }
 ```
@@ -244,7 +244,7 @@ git push
 #### 5. Function Size Too Large
 
 **Solution:**
-- Remove unnecessary `node_modules` by using `npm ci --production`
+- Remove unnecessary development packages for function packaging with `npm ci --omit=dev --ignore-scripts --allow-scripts=`
 - Current function size should be well under 50MB limit
 - Check Netlify dashboard for actual function size
 

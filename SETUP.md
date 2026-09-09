@@ -6,7 +6,7 @@ This guide will help you get CAROMAR up and running quickly.
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** (v14 or higher) - [Download here](https://nodejs.org/)
+- **Node.js** (v24 or higher) - [Download here](https://nodejs.org/)
 - **npm** (comes with Node.js)
 - A **GitHub Personal Access Token** - [Create one here](https://github.com/settings/tokens)
 

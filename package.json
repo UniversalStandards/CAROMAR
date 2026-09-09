@@ -4,7 +4,7 @@
   "description": "Copy A Repository Or Merge All Repositories - A web application for repository management",
   "main": "server.js",
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=24.0.0",
     "npm": ">=9.0.0"
   },
   "scripts": {
@@ -15,7 +15,7 @@
     "test:coverage": "jest --coverage",
     "lint": "eslint . --ext .js --ignore-pattern node_modules/",
     "lint:fix": "eslint . --ext .js --fix --ignore-pattern node_modules/",
-    "build": "npm ci --production=false",
+    "build": "npm ci --include=dev --ignore-scripts --allow-scripts=",
     "predeploy": "npm run lint && npm test",
     "validate": "node scripts/validate-deployment.js",
     "monitor": "node scripts/monitor-deployment.js"
@@ -54,5 +54,8 @@
     "jest": "^30.1.3",
     "nodemon": "^3.0.1",
     "supertest": "^7.1.4"
+  },
+  "overrides": {
+    "qs": "6.16.0"
   }
 }

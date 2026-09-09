@@ -6,9 +6,14 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 
+function getBearerToken(req) {
+    const authHeader = req.headers.authorization;
+    return authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
+}
+
 // Mock the basic routes for testing
 app.get('/api/user', (req, res) => {
-    const { token } = req.query;
+    const token = getBearerToken(req);
     if (token === 'valid_token') {
         res.json({
             username: 'testuser',
@@ -21,7 +26,8 @@ app.get('/api/user', (req, res) => {
 });
 
 app.get('/api/search-repos', (req, res) => {
-    const { username, token } = req.query;
+    const { username } = req.query;
+    const token = getBearerToken(req);
     if (!username) {
         return res.status(400).json({ error: 'Username is required' });
     }
@@ -49,7 +55,8 @@ app.get('/api/search-repos', (req, res) => {
 });
 
 app.post('/api/fork-repo', (req, res) => {
-    const { owner, repo, token } = req.body;
+    const { owner, repo } = req.body;
+    const token = getBearerToken(req);
     if (!owner || !repo || !token) {
         return res.status(400).json({ error: 'Owner, repo, and token are required' });
     }
@@ -65,7 +72,8 @@ describe('CAROMAR API Tests', () => {
     describe('GET /api/user', () => {
         it('should return user info with valid token', async () => {
             const res = await request(app)
-                .get('/api/user?token=valid_token');
+                .get('/api/user')
+                .set('Authorization', 'Bearer valid_token');
             
             expect(res.statusCode).toBe(200);
             expect(res.body).toHaveProperty('username');
@@ -74,7 +82,8 @@ describe('CAROMAR API Tests', () => {
 
         it('should return error with invalid token', async () => {
             const res = await request(app)
-                .get('/api/user?token=invalid_token');
+                .get('/api/user')
+                .set('Authorization', 'Bearer invalid_token');
             
             expect(res.statusCode).toBe(401);
             expect(res.body).toHaveProperty('error');
@@ -91,7 +100,8 @@ describe('CAROMAR API Tests', () => {
     describe('GET /api/search-repos', () => {
         it('should return repositories with valid parameters', async () => {
             const res = await request(app)
-                .get('/api/search-repos?username=testuser&token=valid_token');
+                .get('/api/search-repos?username=testuser')
+                .set('Authorization', 'Bearer valid_token');
             
             expect(res.statusCode).toBe(200);
             expect(res.body).toHaveProperty('repos');
@@ -101,7 +111,7 @@ describe('CAROMAR API Tests', () => {
 
         it('should return error without username', async () => {
             const res = await request(app)
-                .get('/api/search-repos?token=valid_token');
+                .get('/api/search-repos');
             
             expect(res.statusCode).toBe(400);
             expect(res.body.error).toContain('Username is required');
@@ -122,9 +132,9 @@ describe('CAROMAR API Tests', () => {
                 .post('/api/fork-repo')
                 .send({
                     owner: 'testowner',
-                    repo: 'test-repo',
-                    token: 'valid_token'
-                });
+                    repo: 'test-repo'
+                })
+                .set('Authorization', 'Bearer valid_token');
             
             expect(res.statusCode).toBe(200);
             expect(res.body).toHaveProperty('success', true);

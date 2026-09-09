@@ -4,7 +4,7 @@
 
 **Date:** February 10, 2026  
 **Version:** 1.0.0  
-**Repository:** [US-SPURS/CAROMAR](https://github.com/US-SPURS/CAROMAR)
+**Repository:** [UniversalStandards/CAROMAR](https://github.com/UniversalStandards/CAROMAR)
 
 ---
 
@@ -32,13 +32,13 @@
 
 ### 2. Node.js Version Specification ✅
 - **Files:** `.nvmrc`, `package.json`
-- **Changes:** Added Node 18 specification
+- **Changes:** Added Node 24 specification
 - **Impact:** Consistent build environment
 - **Status:** Configured correctly
 
 ### 3. Build Process ✅
 - **File:** `package.json`
-- **Changes:** Updated build command from echo to npm ci
+- **Changes:** Updated build command to deterministic `npm ci --include=dev --ignore-scripts --allow-scripts=` installation
 - **Impact:** Proper dependency installation
 - **Status:** Functional
 
@@ -363,7 +363,7 @@ npm run monitor https://your-site.netlify.app
 
 ### External Resources
 - **Netlify Docs:** https://docs.netlify.com
-- **GitHub Issues:** https://github.com/US-SPURS/CAROMAR/issues
+- **GitHub Issues:** https://github.com/UniversalStandards/CAROMAR/issues
 - **Netlify CLI:** https://docs.netlify.com/cli/get-started
 
 ---

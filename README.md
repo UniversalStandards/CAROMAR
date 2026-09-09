@@ -48,9 +48,11 @@ Deploy CAROMAR to Netlify with one click:
 - Combines multiple repositories into one organized repository
 - Each source repository becomes a main folder
 - Maintains separation while creating unified access
-- Fully automated server-side merge execution (no manual git steps required)
-- AI-assisted merge planning with structured repository-level merge summaries
-- Capability detection (API/frontend/testing/CI/infrastructure) and per-repository risk scoring in merge output
+- Fully automated server-side merge execution with one atomic Git Data API publication (no manual git steps required)
+- Fail-closed merge validation for truncated trees, empty sources, unsupported Git modes, oversized files, and aggregate limits
+- Automatic rollback of a newly created target when staging or publication fails
+- Deterministic capability detection (API/frontend/testing/CI/infrastructure) and per-repository risk scoring in merge output; no model is claimed where none is used
+- Structured merge results include the published commit SHA, file/byte counts, target branch, and source-history limitation
 - Custom naming for the merged repository
 - Repository descriptor validation (name/full_name/clone_url) before merge repo creation
 
@@ -92,7 +94,7 @@ Deploy CAROMAR to Netlify with one click:
 ## Installation & Setup
 
 ### Prerequisites
-- Node.js (v18 or higher)
+- Node.js (v24 or higher)
 - npm (v9 or higher)
 - GitHub Personal Access Token
 
@@ -220,7 +222,7 @@ To use CAROMAR, you need a GitHub Personal Access Token:
 4. Copy the generated token
 5. Enter it in the CAROMAR application
 
-**Security Note:** Your token is stored locally in your browser and used only for GitHub API calls. It's never sent to external servers. The server also only ever accepts your token via the `Authorization` header (or the JSON body for POST requests) — never via a URL query parameter — so it cannot leak through server, proxy, or browser history logs.
+**Security Note:** Your token is stored locally in your browser and sent to CAROMAR only in the `Authorization` header for the request that needs it. It is never sent in query parameters or request bodies, so it is not exposed through URLs or browser history. Use HTTPS in production and grant the minimum GitHub permissions required for the operation.
 
 ---
 
@@ -259,7 +261,7 @@ The application provides several REST API endpoints:
 - Real-time progress tracking
 
 ### Backend
-- Node.js (v18+)
+- Node.js (v24+)
 - Express.js
 - Serverless-ready architecture
 - RESTful API design
@@ -303,7 +305,7 @@ CAROMAR/
 │   ├── analytics.js                 # Repository analytics
 │   ├── comparison.js                # Repository comparison
 │   ├── logger.js                    # Logging utility
-│   ├── merge-automation.js          # Automated server-side merge engine + AI insights
+│   ├── merge-automation.js          # Atomic Git Data API merge engine + deterministic analysis
 │   ├── validation.js                # Input validation & sanitization
 │   ├── performance.js               # Performance monitoring
 │   └── security.js                  # Security hardening utilities
@@ -334,6 +336,7 @@ CAROMAR/
 ├── SETUP.md                         # Setup guide
 ├── DEVELOPMENT.md                   # Development guide
 ├── API.md                           # API documentation
+├── docs/adr/0001-atomic-merge-publication.md  # Merge architecture decision record
 └── LICENSE                          # MIT License
 ```
 
@@ -369,7 +372,7 @@ npm run test:coverage
 npm run test:watch
 ```
 
-CAROMAR ships a comprehensive automated test suite (7 Jest test files) covering server endpoints, security utilities, input validation, the merge-automation engine, and Authorization-header token handling — including a real-server integration suite that exercises `server.js` directly.
+CAROMAR ships a comprehensive automated test suite covering server endpoints, security utilities, input validation, the atomic merge engine, the frontend/API response contract, and Authorization-header token handling — including a real-server integration suite that exercises `server.js` directly.
 
 ---
 

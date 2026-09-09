@@ -37,6 +37,8 @@ describe('Validation Utilities', () => {
         it('should reject invalid repository names', () => {
             expect(isValidRepositoryName('')).toBe(false);
             expect(isValidRepositoryName('a'.repeat(101))).toBe(false); // too long
+            expect(isValidRepositoryName('.')).toBe(false);
+            expect(isValidRepositoryName('..')).toBe(false);
         });
     });
 
@@ -122,6 +124,40 @@ describe('Validation Utilities', () => {
             expect(result.isValid).toBe(false);
             expect(result.error).toContain('invalid clone_url');
             expect(result.repositories).toHaveLength(0);
+        });
+
+        it('should reject mismatched identity fields and duplicate merge folders', () => {
+            const mismatched = validateMergeRepositoryDescriptors([{
+                name: 'display-name',
+                full_name: 'octocat/repo-one',
+                clone_url: 'https://github.com/octocat/repo-one.git'
+            }]);
+            expect(mismatched.isValid).toBe(false);
+            expect(mismatched.error).toContain('mismatched name');
+
+            const duplicateFolder = validateMergeRepositoryDescriptors([
+                {
+                    name: 'shared',
+                    full_name: 'octocat/shared',
+                    clone_url: 'https://github.com/octocat/shared.git'
+                },
+                {
+                    name: 'shared',
+                    full_name: 'other-user/shared',
+                    clone_url: 'https://github.com/other-user/shared.git'
+                }
+            ]);
+            expect(duplicateFolder.isValid).toBe(false);
+            expect(duplicateFolder.error).toContain('merge folder');
+        });
+
+        it('should reject dot-segment repository descriptors', () => {
+            const result = validateMergeRepositoryDescriptors([{
+                name: '.',
+                full_name: 'octocat/.',
+                clone_url: 'https://github.com/octocat/.'
+            }]);
+            expect(result.isValid).toBe(false);
         });
     });
 
