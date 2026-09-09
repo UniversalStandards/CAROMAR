@@ -26,7 +26,7 @@ Simply visit the deployed CAROMAR instance:
 ## 💻 For Developers (Local Setup)
 
 ### Prerequisites
-- Node.js 18+ ([Download](https://nodejs.org/))
+- Node.js 22+ ([Download](https://nodejs.org/))
 - Git ([Download](https://git-scm.com/))
 - GitHub Personal Access Token
 
@@ -211,7 +211,7 @@ npm run lint
 ## ✅ Success Checklist
 
 ### Before Using:
-- [ ] Have Node.js 18+ installed (for local development)
+- [ ] Have Node.js 22+ installed (for local development)
 - [ ] Have GitHub Personal Access Token ready
 - [ ] Token has `repo` and `user` scopes
 

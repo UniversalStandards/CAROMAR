@@ -44,10 +44,6 @@ function logWarning(message) {
     results.warnings.push(message);
 }
 
-function logInfo(message) {
-    console.log(`${colors.cyan}ℹ${colors.reset} ${message}`);
-}
-
 function logHeader(message) {
     console.log(`\n${colors.blue}${'='.repeat(60)}${colors.reset}`);
     console.log(`${colors.blue}${message}${colors.reset}`);
@@ -68,7 +64,7 @@ function readJSON(filePath) {
     try {
         const content = fs.readFileSync(path.join(process.cwd(), filePath), 'utf8');
         return JSON.parse(content);
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -79,7 +75,7 @@ function readJSON(filePath) {
 function readFile(filePath) {
     try {
         return fs.readFileSync(path.join(process.cwd(), filePath), 'utf8');
-    } catch (error) {
+    } catch {
         return null;
     }
 }

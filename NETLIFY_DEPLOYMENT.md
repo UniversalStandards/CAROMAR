@@ -56,7 +56,7 @@ cd CAROMAR
 3. Choose your Git provider (GitHub)
 4. Select the CAROMAR repository
 5. Configure build settings (pre-filled from netlify.toml):
-   - **Build command:** `npm ci --production=false`
+   - **Build command:** `npm run validate`
    - **Publish directory:** `public`
    - **Functions directory:** `functions`
 6. Click "Deploy site"
@@ -91,7 +91,7 @@ The repository includes a comprehensive `netlify.toml` configuration file that h
 
 ```toml
 [build]
-  command = "npm ci --production=false"
+  command = "npm run validate"
   publish = "public"
 ```
 
@@ -99,7 +99,7 @@ The repository includes a comprehensive `netlify.toml` configuration file that h
 
 Specified in `.nvmrc`:
 ```
-18
+22
 ```
 
 And in `package.json`:

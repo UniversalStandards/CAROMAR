@@ -24,8 +24,8 @@ const siteUrl = process.argv[2];
 
 if (!siteUrl) {
     console.error(`${colors.red}Error: Site URL is required${colors.reset}`);
-    console.log(`Usage: node scripts/monitor-deployment.js <site-url>`);
-    console.log(`Example: node scripts/monitor-deployment.js https://caromar.netlify.app`);
+    console.log('Usage: node scripts/monitor-deployment.js <site-url>');
+    console.log('Example: node scripts/monitor-deployment.js https://caromar.netlify.app');
     process.exit(1);
 }
 
@@ -33,7 +33,7 @@ if (!siteUrl) {
 let parsedUrl;
 try {
     parsedUrl = new URL(siteUrl);
-} catch (error) {
+} catch {
     console.error(`${colors.red}Error: Invalid URL${colors.reset}`);
     process.exit(1);
 }
@@ -218,7 +218,7 @@ async function checkSecurityHeaders() {
         }
         
         return allPresent;
-    } catch (error) {
+    } catch {
         console.log(`${colors.red}  ✗ Failed to check headers${colors.reset}`);
         return false;
     }
@@ -238,7 +238,7 @@ async function performanceTest() {
             const response = await makeRequest('/api/health');
             durations.push(response.duration);
             process.stdout.write('.');
-        } catch (error) {
+        } catch {
             process.stdout.write('x');
         }
     }

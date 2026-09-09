@@ -2,7 +2,7 @@
 # Production-ready serverless deployment configuration
 
 [build]
-  command = "npm ci --production=false"
+  command = "npm run validate"
   publish = "public"
 
 [build.environment]
@@ -10,13 +10,16 @@
   NPM_FLAGS = "--legacy-peer-deps"
 
 [context.production.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "22"
+
+[context.deploy-preview]
+  command = "npm run validate"
 
 [context.deploy-preview.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "22"
 
 [context.branch-deploy.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "22"
 
 # Functions configuration
 [functions]
@@ -89,7 +92,3 @@
 # Development context
 [context.dev]
   command = "npm run dev"
-
-# Deploy preview context
-[context.deploy-preview]
-  command = "npm ci && npm run build"
