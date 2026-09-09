@@ -1,6 +1,6 @@
 {
   "name": "caromar",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Copy A Repository Or Merge All Repositories - A web application for repository management",
   "main": "server.js",
   "engines": {

@@ -4,7 +4,7 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/YOUR-SITE-ID/deploy-status)](https://app.netlify.com/sites/YOUR-SITE-NAME/deploys)
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/UniversalStandards/CAROMAR)
 
-A powerful web application that allows users to efficiently manage GitHub repositories by either forking individual repositories or merging multiple repositories into a single repository with organized folder structure.
+A secure, production-ready web application that allows users to efficiently manage GitHub repositories by either forking individual repositories or merging multiple repositories into a single repository with organized folder structure.
 
 ![CAROMAR Interface](https://github.com/user-attachments/assets/a044e51e-4b80-4165-ada5-611b47eab378)
 
@@ -14,7 +14,7 @@ Deploy CAROMAR to Netlify with one click:
 
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/UniversalStandards/CAROMAR)
 
-**[📖 Full Deployment Guide](./NETLIFY_DEPLOYMENT.md)** | **[✅ Deployment Fixes](./DEPLOYMENT_FIXES.md)**
+**[📖 Full Deployment Guide](./NETLIFY_DEPLOYMENT.md)** | **[✅ Deployment Fixes](./DEPLOYMENT_FIXES.md)** | **[⚡ Quickstart](./QUICKSTART.md)**
 
 ---
 
@@ -50,9 +50,30 @@ Deploy CAROMAR to Netlify with one click:
 - Maintains separation while creating unified access
 - Fully automated server-side merge execution (no manual git steps required)
 - AI-assisted merge planning with structured repository-level merge summaries
-- Capability detection (API/frontend/testing/CI) and per-repository risk scoring in merge output
+- Capability detection (API/frontend/testing/CI/infrastructure) and per-repository risk scoring in merge output
 - Custom naming for the merged repository
 - Repository descriptor validation (name/full_name/clone_url) before merge repo creation
+
+### 📈 Repository Analytics & Comparison
+- Aggregate statistics across a selected repository set: total stars/forks/watchers/size, private/forked/archived counts
+- Language distribution, activity timeline, and trending/abandoned/active classification
+- Two-way repository comparison, multi-repository comparison matrix, and "find best" ranking by a chosen criterion (stars, forks, watchers, recency, size, or open issues)
+- Powered by `/api/analyze-repos` and `/api/compare-repos`, with a dedicated Analytics and Comparison panel in the UI
+
+### 🛡️ Security Hardening
+- Helmet-managed security headers with a strict Content Security Policy
+- Layered rate limiting: per-IP (express-rate-limit) plus a per-identifier (token or IP) limiter for defense in depth
+- Prototype-pollution-safe sanitization applied to every incoming request body
+- Suspicious-pattern (XSS) detection on free-text fields such as repository descriptions
+- Origin validation on state-changing API requests (CSRF defense-in-depth), configurable via `ALLOWED_ORIGINS`
+- Strict Content-Type enforcement on write endpoints
+- Repository descriptor validation (name/full_name/HTTPS GitHub clone_url) before any merge repository is created
+- Tokens accepted only via the `Authorization` header — never via query parameters — to prevent leakage through logs or browser history
+
+### ⚡ Performance Monitoring
+- Real-time per-endpoint request and error tracking via a built-in `PerformanceMonitor`
+- Slow-request detection and automatic health status evaluation (healthy/degraded/unhealthy)
+- Exposed at `/api/metrics`, and folded into the `/api/health` check
 
 ### 📊 Progress Tracking
 - Real-time progress bars during operations
@@ -181,6 +202,10 @@ Choose between two operation modes:
 - Access direct links to newly created repositories
 - Review any errors or issues encountered
 
+### Optional: Analytics & Comparison
+- Use the Analytics panel to generate a statistics report across your selected (or all) repositories
+- Use the Comparison panel to compare two repositories head-to-head, build a multi-repository ranking matrix, or find the "best" repository by a chosen criterion
+
 ---
 
 ## GitHub Token Setup
@@ -195,7 +220,7 @@ To use CAROMAR, you need a GitHub Personal Access Token:
 4. Copy the generated token
 5. Enter it in the CAROMAR application
 
-**Security Note:** Your token is stored locally in your browser and used only for GitHub API calls. It's never sent to external servers.
+**Security Note:** Your token is stored locally in your browser and used only for GitHub API calls. It's never sent to external servers. The server also only ever accepts your token via the `Authorization` header (or the JSON body for POST requests) — never via a URL query parameter — so it cannot leak through server, proxy, or browser history logs.
 
 ---
 
@@ -239,13 +264,19 @@ The application provides several REST API endpoints:
 - Serverless-ready architecture
 - RESTful API design
 
+### Security
+- Helmet (security headers & CSP)
+- express-rate-limit (per-IP rate limiting) plus a custom per-identifier rate limiter
+- Custom input validation, sanitization, and suspicious-pattern (XSS) detection
+- CSRF-style origin validation and Content-Type enforcement on write endpoints
+
 ### Infrastructure
 - Netlify Functions (Serverless)
 - Netlify CDN (Static assets)
 - GitHub REST API v3 integration
 
 ### Development
-- Jest (Testing)
+- Jest + Supertest (Testing)
 - ESLint (Linting)
 - Nodemon (Development)
 
@@ -255,45 +286,55 @@ The application provides several REST API endpoints:
 
 ```
 CAROMAR/
-├── public/                    # Static assets (served from CDN)
+├── public/                          # Static assets (served from CDN)
 │   ├── css/
-│   │   ├── style.css         # Application styling
-│   │   └── icons-fallback.css # Icon fallbacks
+│   │   ├── style.css                # Application styling
+│   │   └── icons-fallback.css       # Icon fallbacks
 │   ├── js/
-│   │   ├── app.js            # Basic frontend
-│   │   └── enhanced-app.js   # Full-featured frontend
-│   ├── robots.txt            # SEO crawler rules
-│   └── sitemap.xml           # SEO sitemap
+│   │   ├── app.js                   # Basic frontend
+│   │   └── enhanced-app.js          # Full-featured frontend
+│   ├── robots.txt                   # SEO crawler rules
+│   └── sitemap.xml                  # SEO sitemap
 ├── views/
-│   └── index.ejs             # Main HTML template
+│   └── index.ejs                    # Main HTML template
 ├── functions/
-│   └── server.js             # Netlify serverless wrapper
+│   └── server.js                    # Netlify serverless wrapper
 ├── utils/
-│   ├── analytics.js          # Repository analytics
-│   ├── comparison.js         # Repository comparison
-│   ├── logger.js             # Logging utility
-│   ├── validation.js         # Input validation
-│   ├── performance.js        # Performance monitoring
-│   └── security.js           # Security utilities
+│   ├── analytics.js                 # Repository analytics
+│   ├── comparison.js                # Repository comparison
+│   ├── logger.js                    # Logging utility
+│   ├── merge-automation.js          # Automated server-side merge engine + AI insights
+│   ├── validation.js                # Input validation & sanitization
+│   ├── performance.js               # Performance monitoring
+│   └── security.js                  # Security hardening utilities
 ├── scripts/
-│   └── validate-deployment.js # Pre-deploy validation
+│   ├── validate-deployment.js       # Pre-deploy validation
+│   └── monitor-deployment.js        # Post-deploy health monitoring
 ├── tests/
-│   ├── app.test.js           # API tests
-│   └── utils.test.js         # Utility tests
-├── server.js                 # Express application
-├── package.json              # Dependencies & scripts
-├── netlify.toml              # Netlify configuration
-├── .nvmrc                    # Node version
-├── jest.config.js            # Jest configuration
-├── eslint.config.js          # ESLint configuration
-├── .env.example              # Environment template
-├── README.md                 # This file
-├── NETLIFY_DEPLOYMENT.md     # Deployment guide
-├── DEPLOYMENT_FIXES.md       # Fixes summary
-├── SETUP.md                  # Setup guide
-├── DEVELOPMENT.md            # Development guide
-├── API.md                    # API documentation
-└── LICENSE                   # MIT License
+│   ├── app.test.js                  # API tests
+│   ├── merge-automation.test.js     # Merge engine tests
+│   ├── merged-repo.validation.integration.test.js  # Real-server integration tests
+│   ├── security.test.js             # Security utility tests
+│   ├── server.test.js               # Server endpoint integration tests
+│   ├── token-security.test.js       # Token/Authorization-header handling tests
+│   └── utils.test.js                # Utility function tests
+├── server.js                        # Express application
+├── package.json                     # Dependencies & scripts
+├── netlify.toml                     # Netlify configuration
+├── .nvmrc                           # Node version
+├── jest.config.js                   # Jest configuration
+├── eslint.config.js                 # ESLint configuration
+├── .env.example                     # Environment template
+├── README.md                        # This file
+├── QUICKSTART.md                    # 5-minute setup guide
+├── NETLIFY_DEPLOYMENT.md            # Deployment guide
+├── DEPLOYMENT_FIXES.md              # Fixes summary
+├── DEPLOYMENT_COMPLETE.md           # Deployment completion report
+├── ENVIRONMENT.md                   # Environment configuration guide
+├── SETUP.md                         # Setup guide
+├── DEVELOPMENT.md                   # Development guide
+├── API.md                           # API documentation
+└── LICENSE                          # MIT License
 ```
 
 ---
@@ -328,6 +369,8 @@ npm run test:coverage
 npm run test:watch
 ```
 
+CAROMAR ships a comprehensive automated test suite (7 Jest test files) covering server endpoints, security utilities, input validation, the merge-automation engine, and Authorization-header token handling — including a real-server integration suite that exercises `server.js` directly.
+
 ---
 
 ## Contributing
@@ -347,8 +390,11 @@ We welcome contributions! Please follow these steps:
 ## Documentation
 
 - **[README.md](./README.md)** - This file (Overview & Quick Start)
+- **[QUICKSTART.md](./QUICKSTART.md)** - 5-minute setup guide
 - **[NETLIFY_DEPLOYMENT.md](./NETLIFY_DEPLOYMENT.md)** - Netlify deployment guide
 - **[DEPLOYMENT_FIXES.md](./DEPLOYMENT_FIXES.md)** - Deployment fixes summary
+- **[DEPLOYMENT_COMPLETE.md](./DEPLOYMENT_COMPLETE.md)** - Deployment completion report
+- **[ENVIRONMENT.md](./ENVIRONMENT.md)** - Environment variable configuration guide
 - **[SETUP.md](./SETUP.md)** - Detailed setup instructions
 - **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Development guide
 - **[API.md](./API.md)** - API documentation
@@ -401,13 +447,13 @@ If you encounter any issues or have questions:
 
 ## Status
 
-✅ **Production Ready**  
-✅ **Deployment Tested**  
-✅ **Fully Documented**  
+✅ **Production Ready**
+✅ **Deployment Tested**
+✅ **Fully Documented**
 ✅ **Security Hardened**
 
 ---
 
 **Built with ❤️ by US-SPURS**
 
-**Last Updated:** February 10, 2026
+**Last Updated:** September 9, 2026

@@ -37,6 +37,12 @@ However, for advanced features and production optimization, you can configure th
 - **Example:** `NODE_ENV=production`
 - **When to use:** Automatically set by Netlify, but can override locally
 
+#### `ALLOWED_ORIGINS` (Optional)
+- **Default:** `*` (fully open — matches CAROMAR's existing open-CORS behavior)
+- **Description:** Comma-separated list of origins allowed to make state-changing (POST/PUT/PATCH/DELETE) requests to `/api/*`. Supports exact matches and trailing-`*` prefix wildcards (e.g. `https://example.com*`). Requests with no `Origin` header (same-origin, curl, server-to-server) are always allowed.
+- **Example:** `ALLOWED_ORIGINS=https://caromar.example.com,https://staging.example.com`
+- **When to use:** When you want to lock down who can call the write endpoints of a deployed instance (CSRF defense-in-depth). Leave unset for the default fully-open behavior.
+
 ### GitHub OAuth (Future Feature - Not Implemented)
 
 #### `GITHUB_CLIENT_ID` (Optional)
@@ -105,6 +111,9 @@ However, for advanced features and production optimization, you can configure th
    NODE_ENV=development
    LOG_LEVEL=DEBUG
 
+   # Security (optional)
+   # ALLOWED_ORIGINS=http://localhost:3000
+
    # GitHub OAuth (Placeholder for future)
    # GITHUB_CLIENT_ID=
    # GITHUB_CLIENT_SECRET=
@@ -134,6 +143,9 @@ The application uses `dotenv` package to load `.env` file:
 PORT=3000
 NODE_ENV=development
 LOG_LEVEL=DEBUG
+
+# Security (optional)
+# ALLOWED_ORIGINS=http://localhost:3000
 
 # Future OAuth Configuration (not implemented)
 # GITHUB_CLIENT_ID=your_client_id
@@ -193,6 +205,7 @@ netlify env:import .env
 
 **Optional enhancements:**
 - `LOG_LEVEL=INFO` - Control logging verbosity
+- `ALLOWED_ORIGINS` - Lock down which origins can call write endpoints
 - Future: OAuth credentials for enhanced authentication
 
 ---
@@ -207,6 +220,9 @@ NODE_ENV=production
 
 # Logging
 LOG_LEVEL=INFO
+
+# Security (optional, recommended if you control the calling frontend's origin)
+# ALLOWED_ORIGINS=https://your-production-domain.com
 
 # Future OAuth (when implemented)
 # GITHUB_CLIENT_ID=production_client_id
@@ -225,6 +241,7 @@ LOG_LEVEL=INFO
 - [ ] Use different secrets for dev/staging/prod
 - [ ] Limit access to production environment variables
 - [ ] Enable Netlify's secret scanning
+- [ ] Set `ALLOWED_ORIGINS` if this instance is called from a known frontend origin
 
 ### Performance Optimization
 
@@ -353,6 +370,11 @@ PORT=3001 npm start
 - Use `LOG_LEVEL=WARN` or higher in production
 - Review Netlify function logs for accidental leaks
 
+### Issue: API requests blocked with "Origin not allowed"
+
+- This means `ALLOWED_ORIGINS` is set and the calling frontend's origin isn't in the list
+- Add the frontend's exact origin (scheme + host + port) to `ALLOWED_ORIGINS`, or unset the variable to restore the default open behavior
+
 ---
 
 ## Quick Reference
@@ -424,6 +446,6 @@ For configuration issues:
 
 ---
 
-**Last Updated:** February 10, 2026  
-**Version:** 1.0.0  
+**Last Updated:** September 9, 2026
+**Version:** 1.1.0
 **Status:** ✅ Production Ready
