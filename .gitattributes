@@ -1,0 +1,12 @@
+# Keep source, configuration, and documentation files consistent across hosts.
+* text=auto eol=lf
+
+# Do not rewrite binary assets.
+*.gif binary
+*.ico binary
+*.jpeg binary
+*.jpg binary
+*.pdf binary
+*.png binary
+*.woff binary
+*.woff2 binary
