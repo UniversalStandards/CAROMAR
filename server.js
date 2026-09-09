@@ -28,6 +28,14 @@ const {
     validateSort,
     validateMergeRepositoryDescriptors
 } = require('./utils/validation');
+const {
+    containsSuspiciousPatterns,
+    isAllowedOrigin,
+    sanitizeObject,
+    isAllowedContentType,
+    RateLimiter,
+    simpleHash
+} = require('./utils/security');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,12 +43,21 @@ const PORT = process.env.PORT || 3000;
 // Initialize performance monitor
 const performanceMonitor = new PerformanceMonitor();
 
-// Rate limiting
+// Rate limiting (per-IP, coarse-grained)
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // limit each IP to 100 requests per windowMs
     message: { error: 'Too many requests, please try again later.' }
 });
+
+// Defense-in-depth per-identifier (token or IP) rate limiter, layered on top of apiLimiter
+const identifierRateLimiter = new RateLimiter();
+
+// Origins allowed for state-changing API requests (CSRF defense-in-depth).
+// Defaults to '*' (fully open) so existing open-CORS behavior is unchanged unless configured.
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim()).filter(Boolean)
+    : ['*'];
 
 // Middleware
 // Security headers
@@ -66,17 +83,52 @@ app.use(express.static('public'));
 app.use((req, res, next) => {
     const completeRequest = performanceMonitor.startRequest(req.path, req.method);
     const startTime = Date.now();
-    
+
     res.on('finish', () => {
         const duration = Date.now() - startTime;
         logger.logResponse(req, res, duration);
         completeRequest(res.statusCode);
     });
-    
+
     next();
 });
 
 app.use('/api/', apiLimiter);
+
+// Prototype-pollution defense: strip dangerous keys from any parsed JSON body
+app.use((req, res, next) => {
+    if (req.body && typeof req.body === 'object') {
+        req.body = sanitizeObject(req.body);
+    }
+    next();
+});
+
+// CSRF (origin) and Content-Type hardening, plus per-identifier rate limiting,
+// for API requests. Origin/Content-Type checks apply only to state-changing methods;
+// the per-identifier rate limit applies to all /api/ traffic.
+app.use('/api/', (req, res, next) => {
+    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+        if (!isAllowedOrigin(req.headers.origin, ALLOWED_ORIGINS)) {
+            logger.warn('Blocked request from disallowed origin', { origin: req.headers.origin, path: req.path });
+            return res.status(403).json({ error: 'Origin not allowed' });
+        }
+
+        if (req.headers['content-type'] && !isAllowedContentType(req.headers['content-type'])) {
+            return res.status(415).json({ error: 'Unsupported Content-Type. Expected application/json.' });
+        }
+    }
+
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
+    const identifier = simpleHash(token || req.ip || 'anonymous');
+
+    if (!identifierRateLimiter.checkLimit(identifier)) {
+        return res.status(429).json({ error: 'Too many requests, please slow down.' });
+    }
+    res.setHeader('X-RateLimit-Remaining', identifierRateLimiter.getRemaining(identifier));
+
+    next();
+});
 
 // Set view engine - use VIEWS_PATH for Netlify serverless compatibility
 app.set('view engine', 'ejs');
@@ -109,11 +161,11 @@ app.get('/', (req, res) => {
 app.get('/api/search-repos', async (req, res) => {
     try {
         let { username, type = 'all', sort = 'updated', per_page = 100, page = 1 } = req.query;
-        
+
         // Extract token from Authorization header
         const authHeader = req.headers.authorization;
         const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
-        
+
         // Validate username
         username = sanitizeString(username);
         if (!username || !isValidGitHubUsername(username)) {
@@ -136,7 +188,7 @@ app.get('/api/search-repos', async (req, res) => {
         const allowedSorts = ['updated', 'created', 'pushed', 'full_name'];
         sort = validateSort(sort, allowedSorts);
 
-        const headers = token ? { 
+        const headers = token ? {
             'Authorization': `token ${token}`,
             'Accept': 'application/vnd.github.v3+json',
             'User-Agent': 'CAROMAR-App'
@@ -198,7 +250,7 @@ app.get('/api/search-repos', async (req, res) => {
         const rateLimitRemaining = response.headers['x-ratelimit-remaining'];
         const rateLimitReset = response.headers['x-ratelimit-reset'];
 
-        res.json({ 
+        res.json({
             repos,
             pagination: {
                 page: parseInt(page),
@@ -213,11 +265,11 @@ app.get('/api/search-repos', async (req, res) => {
         });
     } catch (error) {
         logger.error('Error fetching repositories', error);
-        
+
         if (error.response?.status === 403) {
-            res.status(403).json({ 
+            res.status(403).json({
                 error: 'API rate limit exceeded or insufficient permissions',
-                reset_time: error.response.headers['x-ratelimit-reset'] ? 
+                reset_time: error.response.headers['x-ratelimit-reset'] ?
                     new Date(error.response.headers['x-ratelimit-reset'] * 1000) : null
             });
         } else if (error.response?.status === 404) {
@@ -240,23 +292,23 @@ app.get('/api/search-repos', async (req, res) => {
 app.post('/api/fork-repo', async (req, res) => {
     try {
         let { owner, repo, token, organization } = req.body;
-        
+
         // Validate inputs
         owner = sanitizeString(owner);
         repo = sanitizeString(repo);
-        
+
         if (!owner || !isValidGitHubUsername(owner)) {
             return res.status(400).json({ error: 'Valid owner is required' });
         }
-        
+
         if (!repo || !isValidRepositoryName(repo)) {
             return res.status(400).json({ error: 'Valid repository name is required' });
         }
-        
+
         if (!token || !isValidGitHubToken(token)) {
             return res.status(400).json({ error: 'Valid token is required' });
         }
-        
+
         if (organization) {
             organization = sanitizeString(organization);
             if (!isValidGitHubUsername(organization)) {
@@ -278,8 +330,8 @@ app.post('/api/fork-repo', async (req, res) => {
 
         logger.info('Repository forked successfully', { full_name: response.data.full_name });
 
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             fork_url: response.data.html_url,
             clone_url: response.data.clone_url,
             ssh_url: response.data.ssh_url,
@@ -288,7 +340,7 @@ app.post('/api/fork-repo', async (req, res) => {
         });
     } catch (error) {
         logger.error('Error forking repository', error);
-        
+
         let errorMessage = 'Failed to fork repository';
         let statusCode = 500;
 
@@ -303,7 +355,7 @@ app.post('/api/fork-repo', async (req, res) => {
             statusCode = 422;
         }
 
-        res.status(statusCode).json({ 
+        res.status(statusCode).json({
             error: errorMessage,
             details: error.response?.data?.message || error.message
         });
@@ -314,21 +366,21 @@ app.post('/api/fork-repo', async (req, res) => {
 app.post('/api/create-merged-repo', async (req, res) => {
     try {
         let { name, description, repositories, token, private: isPrivate = false } = req.body;
-        
+
         // Validate inputs
         name = sanitizeString(name);
         if (!name || !isValidRepositoryName(name)) {
             return res.status(400).json({ error: 'Valid repository name is required' });
         }
-        
+
         if (!repositories || !Array.isArray(repositories) || repositories.length === 0) {
             return res.status(400).json({ error: 'At least one repository is required' });
         }
-        
+
         if (repositories.length > 50) {
             return res.status(400).json({ error: 'Maximum 50 repositories can be merged at once' });
         }
-        
+
         if (!token || !isValidGitHubToken(token)) {
             return res.status(400).json({ error: 'Valid token is required' });
         }
@@ -340,8 +392,13 @@ app.post('/api/create-merged-repo', async (req, res) => {
         }
 
         const sanitizedRepositories = repositoryValidation.repositories;
-        
+
         description = sanitizeString(description);
+
+        if (description && containsSuspiciousPatterns(description)) {
+            logger.warn('Suspicious pattern detected in repository description', { name });
+            return res.status(400).json({ error: 'Repository description contains disallowed content' });
+        }
 
         logger.info('Creating merged repository', { name, repoCount: sanitizedRepositories.length });
 
@@ -394,17 +451,17 @@ app.post('/api/create-merged-repo', async (req, res) => {
 
 
         if (error.response?.status === 422) {
-            res.status(422).json({ 
+            res.status(422).json({
                 error: 'Repository name already exists or is invalid',
                 details: error.response?.data?.message || error.message
             });
         } else if (error.response?.status === 403) {
-            res.status(403).json({ 
+            res.status(403).json({
                 error: 'Insufficient permissions to create repository',
                 details: error.response?.data?.message || error.message
             });
         } else {
-            res.status(500).json({ 
+            res.status(500).json({
                 error: 'Failed to create merged repository',
                 details: error.response?.data?.message || error.message
             });
@@ -416,20 +473,20 @@ app.post('/api/create-merged-repo', async (req, res) => {
 app.get('/api/repo-content', async (req, res) => {
     try {
         let { owner, repo, path = '' } = req.query;
-        
+
         // Extract token from Authorization header
         const authHeader = req.headers.authorization;
         const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
-        
+
         // Validate inputs
         owner = sanitizeString(owner);
         repo = sanitizeString(repo);
         path = sanitizeString(path); // Note: Path is validated by GitHub API as well
-        
+
         if (!owner || !isValidGitHubUsername(owner)) {
             return res.status(400).json({ error: 'Valid owner is required' });
         }
-        
+
         if (!repo || !isValidRepositoryName(repo)) {
             return res.status(400).json({ error: 'Valid repository name is required' });
         }
@@ -455,7 +512,7 @@ app.get('/api/repo-content', async (req, res) => {
         res.json({ content: response.data });
     } catch (error) {
         logger.error('Error fetching repository content', error);
-        res.status(error.response?.status || 500).json({ 
+        res.status(error.response?.status || 500).json({
             error: 'Failed to fetch repository content',
             details: error.response?.data?.message || error.message
         });
@@ -468,7 +525,7 @@ app.get('/api/user', async (req, res) => {
         // Extract token from Authorization header
         const authHeader = req.headers.authorization;
         const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
-        
+
         if (!token || !isValidGitHubToken(token)) {
             return res.status(400).json({ error: 'Valid token is required' });
         }
@@ -480,7 +537,7 @@ app.get('/api/user', async (req, res) => {
         };
 
         const userResponse = await axios.get('https://api.github.com/user', { headers });
-        
+
         // Get rate limit info
         const rateLimitResponse = await axios.get('https://api.github.com/rate_limit', { headers });
 
@@ -503,7 +560,7 @@ app.get('/api/user', async (req, res) => {
         });
     } catch (error) {
         logger.error('Error fetching user info', error);
-        
+
         if (error.response?.status === 401) {
             res.status(401).json({ error: 'Invalid or expired token' });
         } else if (error.response?.status === 403) {
@@ -520,7 +577,7 @@ app.get('/api/validate-token', async (req, res) => {
         // Extract token from Authorization header
         const authHeader = req.headers.authorization;
         const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
-        
+
         if (!token) {
             return res.status(400).json({ error: 'Token is required' });
         }
@@ -533,10 +590,10 @@ app.get('/api/validate-token', async (req, res) => {
 
         // Check token validity and permissions
         const response = await axios.get('https://api.github.com/user', { headers });
-        
+
         // Extract scopes from headers
         const scopes = response.headers['x-oauth-scopes']?.split(', ') || [];
-        
+
         res.json({
             valid: true,
             scopes,
@@ -559,16 +616,16 @@ app.get('/api/validate-token', async (req, res) => {
 app.post('/api/analyze-repos', async (req, res) => {
     try {
         const { repositories } = req.body;
-        
+
         if (!repositories || !Array.isArray(repositories)) {
             return res.status(400).json({ error: 'Valid repositories array is required' });
         }
-        
+
         const analytics = new RepositoryAnalytics(repositories);
         const report = analytics.generateReport();
-        
+
         logger.info('Repository analysis completed', { count: repositories.length });
-        
+
         res.json({
             success: true,
             analysis: report,
@@ -576,7 +633,7 @@ app.post('/api/analyze-repos', async (req, res) => {
         });
     } catch (error) {
         logger.error('Error analyzing repositories', error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: 'Failed to analyze repositories',
             details: error.message
         });
@@ -587,13 +644,13 @@ app.post('/api/analyze-repos', async (req, res) => {
 app.post('/api/compare-repos', async (req, res) => {
     try {
         const { repositories, mode = 'two' } = req.body;
-        
+
         if (!repositories || !Array.isArray(repositories)) {
             return res.status(400).json({ error: 'Valid repositories array is required' });
         }
-        
+
         let comparison;
-        
+
         if (mode === 'two' && repositories.length === 2) {
             comparison = RepositoryComparison.compareTwo(repositories[0], repositories[1]);
         } else if (mode === 'multiple') {
@@ -602,14 +659,14 @@ app.post('/api/compare-repos', async (req, res) => {
             const criteria = req.body.criteria || 'stars';
             comparison = RepositoryComparison.findBest(repositories, criteria);
         } else {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 error: 'Invalid comparison mode or repository count',
                 details: 'Mode "two" requires exactly 2 repositories'
             });
         }
-        
+
         logger.info('Repository comparison completed', { mode, count: repositories.length });
-        
+
         res.json({
             success: true,
             comparison,
@@ -618,7 +675,7 @@ app.post('/api/compare-repos', async (req, res) => {
         });
     } catch (error) {
         logger.error('Error comparing repositories', error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: 'Failed to compare repositories',
             details: error.message
         });
@@ -648,7 +705,7 @@ app.get('/api/health', (req, res) => {
 app.get('/api/metrics', (req, res) => {
     const summary = performanceMonitor.getSummary();
     const allMetrics = performanceMonitor.getAllMetrics();
-    
+
     res.json({
         summary,
         endpoints: allMetrics,
@@ -665,7 +722,7 @@ app.use((req, res) => {
 // Global error handling middleware
 app.use((err, req, res, _next) => {
     logger.error('Unhandled error', err);
-    res.status(500).json({ 
+    res.status(500).json({
         error: 'Internal server error',
         message: process.env.NODE_ENV === 'development' ? err.message : 'An unexpected error occurred'
     });
