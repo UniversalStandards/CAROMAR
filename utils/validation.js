@@ -83,7 +83,7 @@ function isValidRepoPath(repoPath) {
         return false;
     }
     // Allow only common filename/path characters
-    const repoPathRegex = /^[a-zA-Z0-9._\/-]{1,1000}$/;
+    const repoPathRegex = /^[a-zA-Z0-9._\x2f-]{1,1000}$/;
     return repoPathRegex.test(repoPath);
 }
 
