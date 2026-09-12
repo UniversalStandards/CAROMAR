@@ -6,7 +6,9 @@ const {
     isValidGitHubToken,
     sanitizeString,
     validatePagination,
-    validateSort 
+    validateSort,
+    isValidGitHubCloneUrl,
+    validateMergeRepositoryDescriptors
 } = require('../utils/validation');
 
 describe('Validation Utilities', () => {
@@ -35,6 +37,8 @@ describe('Validation Utilities', () => {
         it('should reject invalid repository names', () => {
             expect(isValidRepositoryName('')).toBe(false);
             expect(isValidRepositoryName('a'.repeat(101))).toBe(false); // too long
+            expect(isValidRepositoryName('.')).toBe(false);
+            expect(isValidRepositoryName('..')).toBe(false);
         });
     });
 
@@ -74,6 +78,86 @@ describe('Validation Utilities', () => {
             const result = validatePagination(0, 200);
             expect(result.page).toBe(1); // min page
             expect(result.perPage).toBe(100); // max perPage
+        });
+    });
+
+
+    describe('isValidGitHubCloneUrl', () => {
+        it('should validate GitHub clone URLs', () => {
+            expect(isValidGitHubCloneUrl('https://github.com/octocat/hello-world.git')).toBe(true);
+            expect(isValidGitHubCloneUrl('https://github.com/octocat/hello-world')).toBe(true);
+        });
+
+        it('should reject non-GitHub or malformed clone URLs', () => {
+            expect(isValidGitHubCloneUrl('https://gitlab.com/octocat/hello-world.git')).toBe(false);
+            expect(isValidGitHubCloneUrl('ssh://github.com/octocat/hello-world.git')).toBe(false);
+            expect(isValidGitHubCloneUrl('javascript:alert(1)')).toBe(false);
+        });
+    });
+
+
+    describe('validateMergeRepositoryDescriptors', () => {
+        it('should validate and sanitize repository descriptors', () => {
+            const result = validateMergeRepositoryDescriptors([
+                {
+                    name: 'repo-one',
+                    full_name: 'octocat/repo-one',
+                    clone_url: 'https://github.com/octocat/repo-one.git'
+                }
+            ]);
+
+            expect(result.isValid).toBe(true);
+            expect(result.error).toBeNull();
+            expect(result.repositories).toHaveLength(1);
+            expect(result.repositories[0].name).toBe('repo-one');
+        });
+
+        it('should fail on invalid repository descriptor', () => {
+            const result = validateMergeRepositoryDescriptors([
+                {
+                    name: 'repo-one',
+                    full_name: 'octocat/repo-one',
+                    clone_url: 'https://evil.example.com/repo-one.git'
+                }
+            ]);
+
+            expect(result.isValid).toBe(false);
+            expect(result.error).toContain('invalid clone_url');
+            expect(result.repositories).toHaveLength(0);
+        });
+
+        it('should reject mismatched identity fields and duplicate merge folders', () => {
+            const mismatched = validateMergeRepositoryDescriptors([{
+                name: 'display-name',
+                full_name: 'octocat/repo-one',
+                clone_url: 'https://github.com/octocat/repo-one.git'
+            }]);
+            expect(mismatched.isValid).toBe(false);
+            expect(mismatched.error).toContain('mismatched name');
+
+            const duplicateFolder = validateMergeRepositoryDescriptors([
+                {
+                    name: 'shared',
+                    full_name: 'octocat/shared',
+                    clone_url: 'https://github.com/octocat/shared.git'
+                },
+                {
+                    name: 'shared',
+                    full_name: 'other-user/shared',
+                    clone_url: 'https://github.com/other-user/shared.git'
+                }
+            ]);
+            expect(duplicateFolder.isValid).toBe(false);
+            expect(duplicateFolder.error).toContain('merge folder');
+        });
+
+        it('should reject dot-segment repository descriptors', () => {
+            const result = validateMergeRepositoryDescriptors([{
+                name: '.',
+                full_name: 'octocat/.',
+                clone_url: 'https://github.com/octocat/.'
+            }]);
+            expect(result.isValid).toBe(false);
         });
     });
 

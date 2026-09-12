@@ -3,6 +3,22 @@
  * Provides comprehensive GitHub repository management features
  * @class EnhancedCaromarApp
  */
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function formatBytes(bytes) {
+    if (!Number.isFinite(bytes) || bytes === 0) return '0 B';
+    const units = ['B', 'KB', 'MB', 'GB'];
+    const unitIndex = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+    return `${(bytes / (1024 ** unitIndex)).toFixed(unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+}
+
 class EnhancedCaromarApp {
     /**
      * Initialize the CAROMAR application
@@ -877,11 +893,11 @@ class EnhancedCaromarApp {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.githubToken}`
                     },
                     body: JSON.stringify({
                         owner,
-                        repo: repoName,
-                        token: this.githubToken
+                        repo: repoName
                     })
                 });
 
@@ -937,6 +953,7 @@ class EnhancedCaromarApp {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.githubToken}`
                 },
                 body: JSON.stringify({
                     name: mergedRepoName,
@@ -947,7 +964,6 @@ class EnhancedCaromarApp {
                         clone_url: repo.clone_url,
                         description: repo.description
                     })),
-                    token: this.githubToken,
                     private: isPrivate
                 })
             });
@@ -956,7 +972,7 @@ class EnhancedCaromarApp {
             
             if (response.ok) {
                 this.updateProgress(100, 'Repository created successfully!');
-                this.showMergeInstructions(result);
+                this.showMergeResult(result);
             } else {
                 throw new Error(result.error || 'Failed to create merged repository');
             }
@@ -966,38 +982,40 @@ class EnhancedCaromarApp {
         }
     }
 
-    showMergeInstructions(result) {
+    showMergeResult(result) {
         const resultsSection = document.getElementById('results-section');
         const resultsContent = document.getElementById('results-content');
-        
+        const merge = result.automated_merge || {};
+        const repositoryResults = Array.isArray(merge.repositoryResults) ? merge.repositoryResults : [];
+        const insights = Array.isArray(merge.insights) ? merge.insights : [];
+
         resultsContent.innerHTML = `
             <div class="merge-success">
                 <div class="summary-card">
                     <h3>✅ Repository Created Successfully</h3>
-                    <p><strong>Name:</strong> ${result.repository.name}</p>
-                    <p><strong>URL:</strong> <a href="${result.repository.html_url}" target="_blank">${result.repository.html_url}</a></p>
+                    <p><strong>Name:</strong> ${escapeHtml(result.repository?.name)}</p>
+                    <p><strong>URL:</strong> <a href="${escapeHtml(result.repository?.html_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(result.repository?.html_url)}</a></p>
+                    <p><strong>Publication:</strong> Atomic single-commit merge on <code>${escapeHtml(merge.targetBranch || 'main')}</code></p>
+                    <p><strong>Commit:</strong> <code>${escapeHtml(merge.commitSha || 'unavailable')}</code></p>
+                    <p><strong>Files:</strong> ${escapeHtml(merge.mergedFiles ?? 0)} &middot; <strong>Bytes:</strong> ${escapeHtml(formatBytes(merge.mergedBytes || 0))}</p>
                 </div>
-                
-                <div class="merge-instructions">
-                    <h4>📋 Manual Merge Instructions</h4>
-                    <p>To complete the merge process, run the following commands locally:</p>
-                    <div class="code-block">
-                        <pre><code>${result.merge_instructions.steps.join('\n')}</code></pre>
-                        <button class="copy-btn" onclick="navigator.clipboard.writeText('${result.merge_instructions.steps.join('\\n')}')">
-                            📋 Copy Commands
-                        </button>
-                    </div>
-                </div>
-                
+
                 <div class="merge-repos">
-                    <h4>📦 Repositories to Merge</h4>
-                    ${result.merge_instructions.repositories.map(repo => `
+                    <h4>📦 Merged Repositories</h4>
+                    ${repositoryResults.map(repository => `
                         <div class="repo-merge-item">
-                            <strong>${repo.name}</strong>
-                            <p>${repo.description || 'No description'}</p>
-                            <a href="${repo.clone_url}" target="_blank" class="clone-link">Clone URL</a>
+                            <strong>${escapeHtml(repository.folder || repository.full_name)}</strong>
+                            <p>${escapeHtml(repository.full_name)} &middot; ${escapeHtml(repository.mergedFiles || 0)} files &middot; ${escapeHtml(formatBytes(repository.mergedBytes || 0))}</p>
+                            <p>Capabilities: ${escapeHtml((repository.capabilities || []).join(', ') || 'none detected')} &middot; deterministic analysis</p>
                         </div>
                     `).join('')}
+                </div>
+
+                <div class="merge-analysis">
+                    <h4>🔎 Deterministic Merge Analysis</h4>
+                    ${insights.map(insight => `
+                        <p><strong>${escapeHtml(insight.repository)}</strong>: ${escapeHtml(insight.recommendation)}</p>
+                    `).join('') || '<p>No additional analysis was returned.</p>'}
                 </div>
             </div>
         `;

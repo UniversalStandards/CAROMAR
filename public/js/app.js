@@ -92,7 +92,11 @@ class CaromarApp {
         validateBtn.disabled = true;
 
         try {
-            const response = await fetch(`/api/user?token=${encodeURIComponent(token)}`);
+            const response = await fetch('/api/user', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             const data = await response.json();
 
             if (response.ok) {
@@ -142,7 +146,11 @@ class CaromarApp {
         searchBtn.disabled = true;
 
         try {
-            const response = await fetch(`/api/search-repos?username=${encodeURIComponent(username)}&token=${encodeURIComponent(this.githubToken)}`);
+            const response = await fetch(`/api/search-repos?username=${encodeURIComponent(username)}`, {
+                headers: {
+                    'Authorization': `Bearer ${this.githubToken}`
+                }
+            });
             const data = await response.json();
 
             if (response.ok) {
@@ -298,11 +306,11 @@ class CaromarApp {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.githubToken}`
                     },
                     body: JSON.stringify({
                         owner,
-                        repo: repoName,
-                        token: this.githubToken
+                        repo: repoName
                     })
                 });
 
