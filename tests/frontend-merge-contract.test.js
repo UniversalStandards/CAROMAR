@@ -16,4 +16,14 @@ describe('Frontend merge response contract', () => {
         expect(frontend).toContain("'Authorization': `Bearer ${this.githubToken}`");
         expect(frontend).not.toMatch(/token:\s*this\.githubToken/);
     });
+
+    it('provides a user-controlled token clearing path', () => {
+        expect(frontend).toContain("document.getElementById('clear-token')");
+        expect(frontend).toContain("localStorage.removeItem('github_token')");
+        expect(frontend).toContain('clearToken()');
+    });
+
+    it('encodes repository names before direct GitHub availability checks', () => {
+        expect(frontend).toContain('encodeURIComponent(repoName)');
+    });
 });

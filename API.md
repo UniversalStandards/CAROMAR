@@ -9,17 +9,17 @@ http://localhost:3000/api
 ```
 
 ## Authentication
-All API endpoints require a GitHub Personal Access Token for authentication.
+Repository-management and user endpoints require a GitHub Personal Access Token. Analytics and comparison endpoints operate on repository metadata supplied by the caller and do not require a token.
 
-**Security Requirement:** Tokens must be transmitted via the `Authorization` header for GET requests, or in the request body for POST requests. **Never send tokens via query parameters** as they can be logged by servers, proxies, and browser history.
+**Security Requirement:** Tokens must be transmitted via the `Authorization` header for every authenticated request. **Never send tokens in request bodies or query parameters** because they can be logged by servers, proxies, and browser history.
 
 **For GET requests:**
 ```
 Authorization: Bearer ghp_your_token_here
 ```
 
-**For POST requests:**
-Include the token in the JSON request body.
+**For authenticated POST requests:**
+Use the same `Authorization` header. Keep the JSON body limited to the operation’s input data.
 
 Required scopes:
 - `repo` - Full control of private repositories

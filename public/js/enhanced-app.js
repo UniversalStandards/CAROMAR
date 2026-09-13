@@ -56,6 +56,10 @@ class EnhancedCaromarApp {
             this.validateToken();
         });
 
+        document.getElementById('clear-token').addEventListener('click', () => {
+            this.clearToken();
+        });
+
         // Repository search
         document.getElementById('search-repos').addEventListener('click', () => {
             this.searchRepositories();
@@ -225,6 +229,27 @@ class EnhancedCaromarApp {
     }
 
     /**
+     * Clear the locally stored token and reset authenticated UI state.
+     * @returns {void}
+     */
+    clearToken() {
+        localStorage.removeItem('github_token');
+        this.githubToken = null;
+        this.currentUser = null;
+        this.rateLimitInfo = null;
+        document.getElementById('github-token').value = '';
+        document.getElementById('user-info').style.display = 'none';
+        document.getElementById('repo-section').style.display = 'none';
+        document.getElementById('repos-list-section').style.display = 'none';
+        document.getElementById('analytics-section').style.display = 'none';
+        document.getElementById('comparison-section').style.display = 'none';
+        this.repositories = [];
+        this.filteredRepositories = [];
+        this.selectedRepos.clear();
+        this.showSuccess('GitHub token cleared from this browser.');
+    }
+
+    /**
      * Validate GitHub personal access token
      * @async
      * @returns {Promise<void>}
@@ -286,6 +311,8 @@ class EnhancedCaromarApp {
                 throw new Error(data.error || 'Invalid token');
             }
         } catch (error) {
+            localStorage.removeItem('github_token');
+            this.githubToken = null;
             this.showError(`Token validation failed: ${error.message}`);
         } finally {
             validateBtn.innerHTML = '<i class="fas fa-check"></i> Validate Token';
@@ -825,7 +852,7 @@ class EnhancedCaromarApp {
         checkBtn.disabled = true;
 
         try {
-            const response = await fetch(`https://api.github.com/repos/${this.currentUser.username}/${repoName}`, {
+            const response = await fetch(`https://api.github.com/repos/${encodeURIComponent(this.currentUser.username)}/${encodeURIComponent(repoName)}`, {
                 headers: {
                     'Authorization': `token ${this.githubToken}`,
                     'Accept': 'application/vnd.github.v3+json'

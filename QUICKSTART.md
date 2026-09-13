@@ -5,8 +5,7 @@ Get CAROMAR up and running in under 5 minutes!
 ## 🚀 For Users (No Installation Required)
 
 ### Option 1: Use Deployed Version
-Simply visit the deployed CAROMAR instance:
-- **Production:** https://caromar.netlify.app (update with your actual URL)
+Visit the production URL configured for your Netlify site. No canonical public URL is currently recorded in this repository.
 
 ### How to Use:
 1. Get a GitHub Personal Access Token:
@@ -264,4 +263,4 @@ npm run lint
 
 **Last Updated:** February 10, 2026  
 **Version:** 1.0.0  
-**Status:** ✅ Production Ready
+**Status:** Repository-validated; complete the Netlify live smoke checklist after confirming the site URL.

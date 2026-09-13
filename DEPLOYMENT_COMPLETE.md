@@ -1,6 +1,8 @@
 # 🎉 CAROMAR - Deployment Complete Summary
 
-## Status: ✅ PRODUCTION READY
+## Status: Historical deployment report
+
+This document records an earlier deployment effort. It is not evidence that the current Netlify production site is live; use the current repository checks and the live smoke-test checklist below.
 
 **Date:** February 10, 2026  
 **Version:** 1.0.0  
