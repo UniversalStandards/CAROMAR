@@ -89,6 +89,7 @@ const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
 // Middleware
 // Security headers
 app.use(helmet({
+    frameguard: { action: 'deny' },
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ['\'self\''],
