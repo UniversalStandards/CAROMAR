@@ -198,7 +198,7 @@ npm run lint
 
 ## 🏆 Pro Tips
 
-1. **Use Enhanced App:** The enhanced-app.js provides more features than basic app.js
+1. **Use the production frontend:** `enhanced-app.js` is the application frontend loaded by the server.
 2. **Token Scopes:** Ensure your GitHub token has `repo` and `user` scopes
 3. **Rate Limits:** Monitor rate limits in the application UI
 4. **Batch Operations:** Use "Select All" for efficient bulk operations

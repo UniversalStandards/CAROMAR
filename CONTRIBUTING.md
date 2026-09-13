@@ -161,7 +161,6 @@ npm run test:coverage
 ### Frontend Development
 - Use the existing class-based architecture
 - The application uses `enhanced-app.js` (EnhancedCaromarApp class) in production
-- `app.js` is a simplified version maintained for reference/minimal implementation
 - Implement responsive design
 - Add proper loading states
 - Include accessibility features

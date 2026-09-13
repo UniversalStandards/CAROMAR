@@ -23,7 +23,7 @@ server.js
 ### Frontend Architecture (Enhanced JavaScript)
 
 ```
-enhanced-app.js (EnhancedCaromarApp class)
+enhanced-app.js (EnhancedCaromarApp class, production frontend)
 ├── Core Features
 │   ├── GitHub Authentication
 │   ├── Repository Search & Discovery

@@ -255,8 +255,7 @@ CAROMAR/
 │   │   ├── style.css         # Application styling
 │   │   └── icons-fallback.css # Icon fallbacks
 │   ├── js/
-│   │   ├── app.js            # Basic frontend
-│   │   └── enhanced-app.js   # Full-featured frontend
+│   │   └── enhanced-app.js   # Production frontend
 │   ├── robots.txt            # SEO crawler rules
 │   └── sitemap.xml           # SEO sitemap
 ├── views/

@@ -140,8 +140,7 @@ CAROMAR/
 │   │   ├── style.css              # Main styles
 │   │   └── icons-fallback.css     # Icon fallbacks
 │   └── js/
-│       ├── app.js                 # Basic frontend implementation
-│       └── enhanced-app.js        # Full-featured frontend (used in production)
+│       └── enhanced-app.js        # Production frontend
 ├── views/
 │   └── index.ejs                  # Main HTML template
 ├── utils/
