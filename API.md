@@ -338,5 +338,5 @@ console.log(data.repos);
 ## Support
 
 For issues and questions:
-- GitHub Issues: https://github.com/US-SPURS/CAROMAR/issues
-- Documentation: https://github.com/US-SPURS/CAROMAR
+- GitHub Issues: https://github.com/UniversalStandards/CAROMAR/issues
+- Documentation: https://github.com/UniversalStandards/CAROMAR

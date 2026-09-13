@@ -424,7 +424,7 @@ For configuration issues:
 1. Check this guide
 2. Review [SETUP.md](./SETUP.md)
 3. See [NETLIFY_DEPLOYMENT.md](./NETLIFY_DEPLOYMENT.md)
-4. Create an issue: https://github.com/US-SPURS/CAROMAR/issues
+4. Create an issue: https://github.com/UniversalStandards/CAROMAR/issues
 
 ---
 

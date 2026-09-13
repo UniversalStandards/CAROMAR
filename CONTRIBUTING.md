@@ -5,8 +5,8 @@ Thank you for your interest in contributing to CAROMAR! This document provides g
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js (v16 or higher)
-- npm (v8 or higher)
+- Node.js (v22 or higher)
+- npm (v10 or higher)
 - Git
 - GitHub account
 

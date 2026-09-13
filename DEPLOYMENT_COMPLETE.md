@@ -4,7 +4,7 @@
 
 **Date:** February 10, 2026  
 **Version:** 1.0.0  
-**Repository:** [US-SPURS/CAROMAR](https://github.com/US-SPURS/CAROMAR)
+**Repository:** [UniversalStandards/CAROMAR](https://github.com/UniversalStandards/CAROMAR)
 
 ---
 
@@ -363,7 +363,7 @@ npm run monitor https://your-site.netlify.app
 
 ### External Resources
 - **Netlify Docs:** https://docs.netlify.com
-- **GitHub Issues:** https://github.com/US-SPURS/CAROMAR/issues
+- **GitHub Issues:** https://github.com/UniversalStandards/CAROMAR/issues
 - **Netlify CLI:** https://docs.netlify.com/cli/get-started
 
 ---

@@ -34,7 +34,7 @@ Simply visit the deployed CAROMAR instance:
 
 #### Step 1: Clone & Install
 ```bash
-git clone https://github.com/US-SPURS/CAROMAR.git
+git clone https://github.com/UniversalStandards/CAROMAR.git
 cd CAROMAR
 npm install
 ```
@@ -59,7 +59,7 @@ Then open http://localhost:3000
 
 ### Method 1: One-Click Deploy (Easiest)
 1. Click the button:  
-   [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/US-SPURS/CAROMAR)
+   [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/UniversalStandards/CAROMAR)
 
 2. Follow Netlify's prompts
 
@@ -177,7 +177,7 @@ npm run lint
 ## 📞 Get Help
 
 - **Documentation:** Check all `.md` files in repository
-- **Issues:** https://github.com/US-SPURS/CAROMAR/issues
+- **Issues:** https://github.com/UniversalStandards/CAROMAR/issues
 - **Discussions:** GitHub Discussions (if enabled)
 
 ---

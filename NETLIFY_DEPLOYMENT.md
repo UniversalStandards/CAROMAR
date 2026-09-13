@@ -1,12 +1,10 @@
 # CAROMAR Netlify Deployment Guide
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/YOUR-SITE-ID/deploy-status)](https://app.netlify.com/sites/YOUR-SITE-NAME/deploys)
-
 ## Quick Deploy to Netlify
 
 Click the button below to deploy CAROMAR to Netlify with one click:
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/US-SPURS/CAROMAR)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/UniversalStandards/CAROMAR)
 
 ---
 
@@ -21,7 +19,7 @@ Click the button below to deploy CAROMAR to Netlify with one click:
 ### Step 1: Fork or Clone Repository
 
 ```bash
-git clone https://github.com/US-SPURS/CAROMAR.git
+git clone https://github.com/UniversalStandards/CAROMAR.git
 cd CAROMAR
 ```
 
@@ -105,8 +103,8 @@ Specified in `.nvmrc`:
 And in `package.json`:
 ```json
 "engines": {
-  "node": ">=18.0.0",
-  "npm": ">=9.0.0"
+  "node": ">=22.0.0",
+  "npm": ">=10.0.0"
 }
 ```
 
@@ -374,7 +372,7 @@ netlify rollback
 
 ### Support Channels
 
-- **GitHub Issues:** [Report bugs or request features](https://github.com/US-SPURS/CAROMAR/issues)
+- **GitHub Issues:** [Report bugs or request features](https://github.com/UniversalStandards/CAROMAR/issues)
 - **Netlify Community:** [Netlify Support Forum](https://answers.netlify.com/)
 
 ---

@@ -6,7 +6,7 @@ This guide will help you get CAROMAR up and running quickly.
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** (v14 or higher) - [Download here](https://nodejs.org/)
+- **Node.js** (v22 or higher) - [Download here](https://nodejs.org/)
 - **npm** (comes with Node.js)
 - A **GitHub Personal Access Token** - [Create one here](https://github.com/settings/tokens)
 
@@ -15,7 +15,7 @@ Before you begin, ensure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Universal-Standard/CAROMAR.git
+git clone https://github.com/UniversalStandards/CAROMAR.git
 cd CAROMAR
 ```
 
@@ -200,8 +200,8 @@ For issues, questions, or feature requests:
 
 1. Check the [main README](./README.md)
 2. Review the [API documentation](./API.md)
-3. Search [existing issues](https://github.com/US-SPURS/CAROMAR/issues)
-4. Create a [new issue](https://github.com/US-SPURS/CAROMAR/issues/new)
+3. Search [existing issues](https://github.com/UniversalStandards/CAROMAR/issues)
+4. Create a [new issue](https://github.com/UniversalStandards/CAROMAR/issues/new)
 
 ## Contributing
 

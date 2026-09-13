@@ -1,8 +1,7 @@
 # CAROMAR
 **C**opy **A** **R**epository **O**r **M**erge **A**ll **R**epositories
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/YOUR-SITE-ID/deploy-status)](https://app.netlify.com/sites/YOUR-SITE-NAME/deploys)
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/US-SPURS/CAROMAR)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/UniversalStandards/CAROMAR)
 
 A powerful web application that allows users to efficiently manage GitHub repositories by either forking individual repositories or merging multiple repositories into a single repository with organized folder structure.
 
@@ -12,7 +11,7 @@ A powerful web application that allows users to efficiently manage GitHub reposi
 
 Deploy CAROMAR to Netlify with one click:
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/US-SPURS/CAROMAR)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/UniversalStandards/CAROMAR)
 
 **[📖 Full Deployment Guide](./NETLIFY_DEPLOYMENT.md)** | **[✅ Deployment Fixes](./DEPLOYMENT_FIXES.md)**
 
@@ -67,15 +66,15 @@ Deploy CAROMAR to Netlify with one click:
 ## Installation & Setup
 
 ### Prerequisites
-- Node.js (v18 or higher)
-- npm (v9 or higher)
+- Node.js (v22 or higher)
+- npm (v10 or higher)
 - GitHub Personal Access Token
 
 ### Local Development
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/US-SPURS/CAROMAR.git
+   git clone https://github.com/UniversalStandards/CAROMAR.git
    cd CAROMAR
    ```
 
@@ -230,7 +229,7 @@ The application provides several REST API endpoints:
 - Real-time progress tracking
 
 ### Backend
-- Node.js (v18+)
+- Node.js (v22+)
 - Express.js
 - Serverless-ready architecture
 - RESTful API design
@@ -372,10 +371,10 @@ If you encounter any issues or have questions:
    - [API Documentation](./API.md)
 
 2. **Search Issues:**
-   - Check [existing issues](https://github.com/US-SPURS/CAROMAR/issues)
+   - Check [existing issues](https://github.com/UniversalStandards/CAROMAR/issues)
 
 3. **Create New Issue:**
-   - [Report a bug](https://github.com/US-SPURS/CAROMAR/issues/new)
+   - [Report a bug](https://github.com/UniversalStandards/CAROMAR/issues/new)
    - Include error messages and steps to reproduce
 
 ### Community
@@ -397,13 +396,16 @@ If you encounter any issues or have questions:
 
 ## Status
 
-✅ **Production Ready**  
-✅ **Deployment Tested**  
-✅ **Fully Documented**  
-✅ **Security Hardened**
+✅ **Repository checks passing**
+
+✅ **Netlify configuration validated**
+
+✅ **Security hardened**
+
+⚠️ **Live production smoke test pending site URL confirmation**
 
 ---
 
-**Built with ❤️ by US-SPURS**
+**Built with ❤️ by Universal Standards**
 
-**Last Updated:** February 10, 2026
+**Last Updated:** September 13, 2026
