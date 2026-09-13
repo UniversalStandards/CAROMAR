@@ -514,7 +514,7 @@ class EnhancedCaromarApp {
 
         const topics = repo.topics && repo.topics.length > 0 ? 
             `<div class="repo-topics">
-                ${repo.topics.slice(0, 3).map(topic => `<span class="topic-tag">${topic}</span>`).join('')}
+                ${repo.topics.slice(0, 3).map(topic => `<span class="topic-tag">${escapeHtml(topic)}</span>`).join('')}
                 ${repo.topics.length > 3 ? `<span class="topic-tag">+${repo.topics.length - 3}</span>` : ''}
             </div>` : '';
 
@@ -526,20 +526,20 @@ class EnhancedCaromarApp {
         div.innerHTML = `
             <div class="repo-header">
                 <h3 class="repo-name">
-                    ${repo.name}
+                    ${escapeHtml(repo.name)}
                     ${repo.private ? '<i class="fas fa-lock" title="Private"></i>' : ''}
                     ${repo.fork ? '<i class="fas fa-code-branch" title="Fork"></i>' : ''}
                     ${repo.archived ? '<i class="fas fa-archive" title="Archived"></i>' : ''}
                 </h3>
                 <input type="checkbox" class="repo-checkbox" data-repo-id="${repo.id}">
             </div>
-            <p class="repo-description">${repo.description || 'No description available'}</p>
+            <p class="repo-description">${escapeHtml(repo.description || 'No description available')}</p>
             ${topics}
             <div class="repo-meta">
                 ${repo.language ? `
                     <span class="repo-language">
                         ${languageDot}
-                        ${repo.language}
+                        ${escapeHtml(repo.language)}
                     </span>
                 ` : ''}
                 <span class="repo-stats">
@@ -551,7 +551,7 @@ class EnhancedCaromarApp {
             </div>
             <div class="repo-stats">
                 <span><i class="fas fa-clock"></i> Updated ${this.formatDate(repo.updated_at)}</span>
-                ${repo.license ? `<span><i class="fas fa-balance-scale"></i> ${repo.license.name}</span>` : ''}
+                ${repo.license ? `<span><i class="fas fa-balance-scale"></i> ${escapeHtml(repo.license.name)}</span>` : ''}
             </div>
         `;
 
@@ -702,10 +702,10 @@ class EnhancedCaromarApp {
                     <h1>Selected Repositories (${selectedRepos.length})</h1>
                     ${selectedRepos.map(repo => `
                         <div class="repo">
-                            <div class="repo-name">${repo.name}</div>
-                            <div class="repo-description">${repo.description || 'No description'}</div>
+                            <div class="repo-name">${escapeHtml(repo.name)}</div>
+                            <div class="repo-description">${escapeHtml(repo.description || 'No description')}</div>
                             <div class="repo-meta">
-                                ${repo.language || 'No language'} • 
+                                ${escapeHtml(repo.language || 'No language')} •
                                 ⭐ ${repo.stargazers_count} • 
                                 🍴 ${repo.forks_count} •
                                 Updated ${this.formatDate(repo.updated_at)}
@@ -825,13 +825,13 @@ class EnhancedCaromarApp {
             
             mergeStructure.innerHTML = `
                 <div class="merge-tree">
-                    <div class="folder-icon">📁 ${repoName}/</div>
+                    <div class="folder-icon">📁 ${escapeHtml(repoName)}/</div>
                     ${selectedRepos.map(repo => `
                         <div class="repo-folder">
-                            <div class="folder-icon">📁 ${repo.name}/</div>
+                            <div class="folder-icon">📁 ${escapeHtml(repo.name)}/</div>
                             <div class="folder-content">
-                                ${repo.language ? `• ${repo.language} files` : ''}
-                                ${repo.description ? `• ${repo.description.substring(0, 50)}...` : ''}
+                                ${repo.language ? `• ${escapeHtml(repo.language)} files` : ''}
+                                ${repo.description ? `• ${escapeHtml(repo.description.substring(0, 50))}...` : ''}
                             </div>
                         </div>
                     `).join('')}
@@ -1091,7 +1091,7 @@ class EnhancedCaromarApp {
                 ${results.map(result => `
                     <div class="result-item ${result.success ? 'success' : 'error'}">
                         <div class="result-header">
-                            <strong>${result.repo}</strong>
+                            <strong>${escapeHtml(result.repo)}</strong>
                             <span class="result-status">${result.success ? '✅ Success' : '❌ Failed'}</span>
                         </div>
                         ${result.success ? `
@@ -1324,7 +1324,7 @@ class EnhancedCaromarApp {
                             <div class="top-repo-item">
                                 <span class="repo-rank">#${index + 1}</span>
                                 <div class="repo-info">
-                                    <div class="repo-name-top">${repo.name}</div>
+                                    <div class="repo-name-top">${escapeHtml(repo.name)}</div>
                                     <div class="repo-stats-top">
                                         ⭐ ${repo.stargazers_count} • 🔀 ${repo.forks_count}
                                     </div>
@@ -1443,7 +1443,7 @@ class EnhancedCaromarApp {
     renderTwoWayComparison(comparison) {
         return `
             <div class="comparison-two">
-                <h3>Comparing: ${comparison.names.repo1} vs ${comparison.names.repo2}</h3>
+                <h3>Comparing: ${escapeHtml(comparison.names.repo1)} vs ${escapeHtml(comparison.names.repo2)}</h3>
                 
                 <div class="comparison-metrics">
                     <h4>Metrics Comparison</h4>
@@ -1452,10 +1452,10 @@ class EnhancedCaromarApp {
                             <div class="metric-name">${metric.charAt(0).toUpperCase() + metric.slice(1)}</div>
                             <div class="metric-values">
                                 <div class="metric-value ${data.winner === comparison.names.repo1 ? 'winner' : ''}">
-                                    ${comparison.names.repo1}: ${data.repo1.toLocaleString()}
+                                    ${escapeHtml(comparison.names.repo1)}: ${data.repo1.toLocaleString()}
                                 </div>
                                 <div class="metric-value ${data.winner === comparison.names.repo2 ? 'winner' : ''}">
-                                    ${comparison.names.repo2}: ${data.repo2.toLocaleString()}
+                                    ${escapeHtml(comparison.names.repo2)}: ${data.repo2.toLocaleString()}
                                 </div>
                             </div>
                         </div>
@@ -1467,8 +1467,8 @@ class EnhancedCaromarApp {
                     <table class="comparison-table">
                         <tr>
                             <th>Attribute</th>
-                            <th>${comparison.names.repo1}</th>
-                            <th>${comparison.names.repo2}</th>
+                            <th>${escapeHtml(comparison.names.repo1)}</th>
+                            <th>${escapeHtml(comparison.names.repo2)}</th>
                         </tr>
                         ${Object.entries(comparison.attributes).map(([attr, data]) => `
                             <tr>
@@ -1497,8 +1497,8 @@ class EnhancedCaromarApp {
                 <h3>Best Repository by ${comparison.criteria}</h3>
                 
                 <div class="best-repo-card">
-                    <h4>🏆 Winner: ${comparison.best.name}</h4>
-                    <p>${comparison.best.description || 'No description'}</p>
+                    <h4>🏆 Winner: ${escapeHtml(comparison.best.name)}</h4>
+                    <p>${escapeHtml(comparison.best.description || 'No description')}</p>
                     <div class="repo-stats">
                         ⭐ ${comparison.best.stargazers_count} stars • 
                         🔀 ${comparison.best.forks_count} forks • 
@@ -1544,7 +1544,7 @@ class EnhancedCaromarApp {
                             ${repos.map(repo => `
                                 <tr>
                                     <td>#${repo.rank}</td>
-                                    <td>${repo.name}</td>
+                                    <td>${escapeHtml(repo.name)}</td>
                                     <td>${repo.value.toLocaleString()}</td>
                                 </tr>
                             `).join('')}

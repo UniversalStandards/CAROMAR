@@ -32,4 +32,11 @@ describe('Frontend merge response contract', () => {
         expect(frontend).toContain('case \'stars\':');
         expect(frontend).toContain('case \'size\':');
     });
+
+    it('escapes external repository data before rendering HTML', () => {
+        expect(frontend).toContain('escapeHtml(repo.name)');
+        expect(frontend).toContain('escapeHtml(repo.description || \'No description available\')');
+        expect(frontend).toContain('escapeHtml(topic)');
+        expect(frontend).toContain('escapeHtml(comparison.names.repo1)');
+    });
 });
