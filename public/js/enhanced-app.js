@@ -418,7 +418,10 @@ class EnhancedCaromarApp {
                 this.filteredRepositories = [...this.repositories];
                 this.extractLanguages();
                 this.populateLanguageFilter();
-                this.renderRepositories();
+                // Apply the selected client-side sort immediately. This keeps
+                // name, stars, and size sorting correct even though GitHub's
+                // API only supports a subset of those sort keys server-side.
+                this.applyFilters();
                 this.updateSearchStats(data);
                 
                 document.getElementById('repos-list-section').style.display = 'block';

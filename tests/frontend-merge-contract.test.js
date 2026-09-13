@@ -26,4 +26,10 @@ describe('Frontend merge response contract', () => {
     it('encodes repository names before direct GitHub availability checks', () => {
         expect(frontend).toContain('encodeURIComponent(repoName)');
     });
+
+    it('applies the selected client-side sort after repository search', () => {
+        expect(frontend).toContain('this.applyFilters();');
+        expect(frontend).toContain('case \'stars\':');
+        expect(frontend).toContain('case \'size\':');
+    });
 });
